@@ -1,0 +1,139 @@
+Journal Number,Journal Number Prefix,Journal Number Suffix,Journal Date,Journal Type,Reference Number,Journal Entity Type,Description,Debit,Credit,Account,Account Code,Total,Notes
+MMW-1,MMW-,1,2024-03-05,Both,,Journal,,60000.000,0,Cash - Fidelity Cash Management Account,1001-001,60000.000,Initial Capital Contribution
+MMW-1,MMW-,1,2024-03-05,Both,,Journal,,0,30000.000,Family Capital - MJFII,3001-000-001,60000.000,Initial Capital Contribution
+MMW-1,MMW-,1,2024-03-05,Both,,Journal,,0,30000.000,Family Capital - MEF,3001-000-002,60000.000,Initial Capital Contribution
+MMW-2,MMW-,2,2024-03-28,Both,,Journal,,214.560,0,Cash - Fidelity Cash Management Account,1001-001,214.560,March 2024 FDRXX Dividend Payment
+MMW-2,MMW-,2,2024-03-28,Both,,Journal,,0,214.560,Income - Ordinary Dividend,4001-001,214.560,March 2024 FDRXX Dividend Payment
+MMW-3,MMW-,3,2024-04-04,Both,,Journal,,43604.130,0,"Investment - Thorndykes, Inc. #1",1103-001-001,43604.130,"Initial purchase of Thorndykes, Inc. 25% of total purchase price"
+MMW-3,MMW-,3,2024-04-04,Both,,Journal,,0,43604.130,Cash - Fidelity Cash Management Account,1001-001,43604.130,"Initial purchase of Thorndykes, Inc. 25% of total purchase price"
+MMW-4,MMW-,4,2024-04-29,Both,,Journal,,11395.870,0,"Investment - Thorndykes, Inc. #1",1103-001-001,11395.870,"2nd investment in Thorndykes, Inc.  Used for working capital."
+MMW-4,MMW-,4,2024-04-29,Both,,Journal,,0,11395.870,Cash - Fidelity Cash Management Account,1001-001,11395.870,"2nd investment in Thorndykes, Inc.  Used for working capital."
+MMW-5,MMW-,5,2024-04-30,Both,,Journal,,90.100,0,Cash - Fidelity Cash Management Account,1001-001,90.100,April FDRXX dividend payment
+MMW-5,MMW-,5,2024-04-30,Both,,Journal,,0,90.100,Income - Ordinary Dividend,4001-001,90.100,April FDRXX dividend payment
+MMW-6,MMW-,6,2024-05-31,Both,,Journal,,22.460,0,Cash - Fidelity Cash Management Account,1001-001,22.460,May FDRXX Dividend Payment
+MMW-6,MMW-,6,2024-05-31,Both,,Journal,,0,22.460,Income - Ordinary Dividend,4001-001,22.460,May FDRXX Dividend Payment
+MMW-7,MMW-,7,2024-06-28,Both,,Journal,,21.810,0,Cash - Fidelity Cash Management Account,1001-001,21.810,June FDRXX Dividend Payment
+MMW-7,MMW-,7,2024-06-28,Both,,Journal,,0,21.810,Income - Ordinary Dividend,4001-001,21.810,June FDRXX Dividend Payment
+MMW-8,MMW-,8,2024-07-31,Both,,Journal,,22.720,0,Cash - Fidelity Cash Management Account,1001-001,22.720,July 2024 FDRXX Dividend
+MMW-8,MMW-,8,2024-07-31,Both,,Journal,,0,22.720,Income - Ordinary Dividend,4001-001,22.720,July 2024 FDRXX Dividend
+MMW-9,MMW-,9,2024-08-30,Both,,Journal,,22.810,0,Cash - Fidelity Cash Management Account,1001-001,22.810,August 2024 FDRXX Dividend Payment
+MMW-9,MMW-,9,2024-08-30,Both,,Journal,,0,22.810,Income - Ordinary Dividend,4001-001,22.810,August 2024 FDRXX Dividend Payment
+MMW-10,MMW-,10,2024-09-30,Both,,Journal,,21.450,0,Cash - Fidelity Cash Management Account,1001-001,21.450,Sept 2024 FDRXX Dividend Payment
+MMW-10,MMW-,10,2024-09-30,Both,,Journal,FDRXX,0,21.450,Income - Ordinary Dividend,4001-001,21.450,Sept 2024 FDRXX Dividend Payment
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,0,4999.370,Cash - Fidelity Cash Management Account,1001-001,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,499.990,0,Consolidated Water Co. Ltd. (CWCO),1102-001-004,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,199.980,0,Alico Inc. (ALCO),1102-001-011,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,599.960,0,American Water Works Company Inc (AWK),1102-001-003,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,349.980,0,California Water Service Group (CWT),1102-001-008,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,499.910,0,Ecolab Inc. (ECL),1102-001-005,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,599.990,0,Farmland Partners Inc. (FPI),1102-001-002,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,299.960,0,Ferguson Enterprises Inc. (FEGR),1102-001-009,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,749.990,0,Gladstone Land Corp (LAND),1102-001-001,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,99.990,0,Global Water Res Inc (GWRS),1102-001-012,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,399.980,0,iShares MSCI Agriculture (VEGI),1102-001-007,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,249.660,0,Waters Corp (WAT),1102-001-010,4999.370,"Initial ""Water Investments"""
+MMW-11,MMW-,11,2024-10-18,Both,,Journal,,449.980,0,Xylem Inc. (XYL),1102-001-006,4999.370,"Initial ""Water Investments"""
+MMW-13,MMW-,13,2024-10-31,Both,,Journal,,14.800,0,Cash - Fidelity Cash Management Account,1001-001,21.680,Oct 2024 FDRXX/SPAXX/LAND Dividend Payment
+MMW-13,MMW-,13,2024-10-31,Both,,Journal,FDRXX,0,14.800,Income - Ordinary Dividend,4001-001,21.680,Oct 2024 FDRXX/SPAXX/LAND Dividend Payment
+MMW-13,MMW-,13,2024-10-31,Both,,Journal,,4.280,0,Cash - Fidelity Cash Management Account,1001-001,21.680,Oct 2024 FDRXX/SPAXX/LAND Dividend Payment
+MMW-13,MMW-,13,2024-10-31,Both,,Journal,SPAXX,0,4.280,Income - Ordinary Dividend,4001-001,21.680,Oct 2024 FDRXX/SPAXX/LAND Dividend Payment
+MMW-13,MMW-,13,2024-10-31,Both,,Journal,,2.600,0,Cash - Fidelity Cash Management Account,1001-001,21.680,Oct 2024 FDRXX/SPAXX/LAND Dividend Payment
+MMW-13,MMW-,13,2024-10-31,Both,,Journal,LAND,0,2.600,Income - Ordinary Dividend,4001-001,21.680,Oct 2024 FDRXX/SPAXX/LAND Dividend Payment
+MMW-12,MMW-,12,2024-10-24,Both,,Journal,,5000.000,0,Cash - Fidelity Cash Management Account,1001-001,5000.000,Oct. 2024 Capital Contribution
+MMW-12,MMW-,12,2024-10-24,Both,,Journal,,0,2500.000,Family Capital - MJFII,3001-000-001,5000.000,Oct. 2024 Capital Contribution
+MMW-12,MMW-,12,2024-10-24,Both,,Journal,,0,2500.000,Family Capital - MEF,3001-000-002,5000.000,Oct. 2024 Capital Contribution
+MMW-14,MMW-,14,2024-11-08,Both,,Journal,,5000.000,0,Investment - YC F24 Orange Fund #1,1103-002-001,5000.000,Y Combinator F24 Companies Initial Investment
+MMW-14,MMW-,14,2024-11-08,Both,,Journal,,0,5000.000,Cash - Fidelity Cash Management Account,1001-001,5000.000,Y Combinator F24 Companies Initial Investment
+MMW-15,MMW-,15,2024-11-15,Both,,Journal,,10000.000,0,Cash - Fidelity Cash Management Account,1001-001,16000.000,Capital Contribution
+MMW-15,MMW-,15,2024-11-15,Both,,Journal,,6000.000,0,Cash - Fidelity Cash Management Account,1001-001,16000.000,Capital Contribution
+MMW-15,MMW-,15,2024-11-15,Both,,Journal,,0,8000.000,Family Capital - MJFII,3001-000-001,16000.000,Capital Contribution
+MMW-15,MMW-,15,2024-11-15,Both,,Journal,,0,8000.000,Family Capital - MEF,3001-000-002,16000.000,Capital Contribution
+MMW-16,MMW-,16,2024-11-15,Both,,Journal,,0,5722.040,Cash - Fidelity Cash Management Account,1001-001,5722.040,Wire cash to Linqto
+MMW-16,MMW-,16,2024-11-15,Both,,Journal,,5722.040,0,Cash - Linqto Wallet,1001-002,5722.040,Wire cash to Linqto
+MMW-17,MMW-,17,2024-11-19,Both,,Journal,,5000.000,0,Investment - Pirouette Medical Inc. #1,1103-004-001,5100.000,Pirouette Medical Investment
+MMW-17,MMW-,17,2024-11-19,Both,,Journal,Wire Fee,100.000,0,Wire & Banking Fees,5001-003,5100.000,Pirouette Medical Investment
+MMW-17,MMW-,17,2024-11-19,Both,,Journal,,0,5100.000,Cash - Fidelity Cash Management Account,1001-001,5100.000,Pirouette Medical Investment
+MMW-18,MMW-,18,2024-11-22,Both,,Journal,,1.830,0,Cash - Fidelity Cash Management Account,1001-001,1.830,Nov 2024 CWT Dividend Payment
+MMW-18,MMW-,18,2024-11-22,Both,,Journal,,0,1.830,Income - Ordinary Dividend,4001-001,1.830,Nov 2024 CWT Dividend Payment
+MMW-19,MMW-,19,2024-11-27,Both,,Journal,,0.190,0,Cash - Fidelity Cash Management Account,1001-001,0.190,Nov 2024 GWRS Dividend Payment
+MMW-19,MMW-,19,2024-11-27,Both,,Journal,GWRS,0,0.190,Income - Ordinary Dividend,4001-001,0.190,Nov 2024 GWRS Dividend Payment
+MMW-20,MMW-,20,2024-11-15,Both,Order 74615,Journal,,5421.600,0,Investment - Anthropic PBC #1,1103-003-001,5421.600,Anthropic AI Investment
+MMW-20,MMW-,20,2024-11-15,Both,Order 74615,Journal,,0,5421.600,Cash - Linqto Wallet,1001-002,5421.600,Anthropic AI Investment
+MMW-21,MMW-,21,2024-11-29,Both,,Journal,,2.600,0,Cash - Fidelity Cash Management Account,1001-001,2.600,Nov 2024 LAND Dividend Payment
+MMW-21,MMW-,21,2024-11-29,Both,,Journal,LAND,0,2.600,Income - Ordinary Dividend,4001-001,2.600,Nov 2024 LAND Dividend Payment
+MMW-22,MMW-,22,2024-11-29,Both,,Journal,,0,4271.150,Cash - Fidelity Cash Management Account,1001-001,4371.150,Money Wire from Fidelity to Linqto
+MMW-22,MMW-,22,2024-11-29,Both,,Journal,,4271.150,0,Cash - Linqto Wallet,1001-002,4371.150,Money Wire from Fidelity to Linqto
+MMW-22,MMW-,22,2024-11-29,Both,,Journal,,0,100.000,Cash - Fidelity Cash Management Account,1001-001,4371.150,Money Wire from Fidelity to Linqto
+MMW-22,MMW-,22,2024-11-29,Both,,Journal,,100.000,0,Cash - Linqto Wallet,1001-002,4371.150,Money Wire from Fidelity to Linqto
+MMW-23,MMW-,23,2024-11-29,Both,,Journal,,4598.050,0,"Investment - Databricks, Inc. - #1",1103-005-001,4598.050,Purchase 35 shares of Databricks
+MMW-23,MMW-,23,2024-11-29,Both,,Journal,,0,4598.050,Cash - Linqto Wallet,1001-002,4598.050,Purchase 35 shares of Databricks
+MMW-24,MMW-,24,2024-10-31,Both,,Journal,,0,178.600,Trading Securities - Water Basket - FMV Adjustment,1102-001-999,178.600,Oct 2024 M2M Trading Securities
+MMW-24,MMW-,24,2024-10-31,Both,,Journal,,178.600,0,Unrealized Securities Gain - DNU,4010-000,178.600,Oct 2024 M2M Trading Securities
+MMW-25,MMW-,25,2024-12-03,Both,,Journal,AWK,3.240,0,Cash - Fidelity Cash Management Account,1001-001,3.240,Dec 2024 AWK Dividend
+MMW-25,MMW-,25,2024-12-03,Both,,Journal,,0,3.240,Income - Ordinary Dividend,4001-001,3.240,Dec 2024 AWK Dividend
+MMW-26,MMW-,26,2024-11-29,Both,,Journal,,5.470,0,Cash - Fidelity Cash Management Account,1001-001,14.950,November 2024 SPAXX / FDRXX Dividend Payment
+MMW-26,MMW-,26,2024-11-29,Both,,Journal,SPAXX,0,5.470,Income - Ordinary Dividend,4001-001,14.950,November 2024 SPAXX / FDRXX Dividend Payment
+MMW-26,MMW-,26,2024-11-29,Both,,Journal,,9.480,0,Cash - Fidelity Cash Management Account,1001-001,14.950,November 2024 SPAXX / FDRXX Dividend Payment
+MMW-26,MMW-,26,2024-11-29,Both,,Journal,FDRXX,0,9.480,Income - Ordinary Dividend,4001-001,14.950,November 2024 SPAXX / FDRXX Dividend Payment
+MMW-27,MMW-,27,2024-12-05,Both,,Journal,,10000.000,0,Cash - Fidelity Cash Management Account,1001-001,10000.000,Dec 2024 Capital Contribution
+MMW-27,MMW-,27,2024-12-05,Both,,Journal,,0,5000.000,Family Capital - MJFII,3001-000-001,10000.000,Dec 2024 Capital Contribution
+MMW-27,MMW-,27,2024-12-05,Both,,Journal,,0,5000.000,Family Capital - MEF,3001-000-002,10000.000,Dec 2024 Capital Contribution
+MMW-28,MMW-,28,2024-12-06,Both,,Journal,,10000.000,0,Investment - SpaceX - #1,1103-006-001,10000.000,Initial Investment in SpaceX
+MMW-28,MMW-,28,2024-12-06,Both,,Journal,,0,10000.000,Cash - Fidelity Cash Management Account,1001-001,10000.000,Initial Investment in SpaceX
+MMW-30,MMW-,30,2024-11-30,Both,,Journal,,185.270,0,Trading Securities - Water Basket - FMV Adjustment,1102-001-999,185.270,Nov 2024 M2M Trading Securities
+MMW-30,MMW-,30,2024-11-30,Both,,Journal,,0,185.270,Unrealized Securities Gain - DNU,4010-000,185.270,Nov 2024 M2M Trading Securities
+MMW-31,MMW-,31,2024-11-30,Both,,Journal,,602.400,0,Investment - Anthropic PBC - FMV Adjustment,1103-003-999,1113.300,Nov 2024 M2M Linqto Investments
+MMW-31,MMW-,31,2024-11-30,Both,,Journal,,510.900,0,"Investment - Databricks, Inc. - FMV Adjustment",1103-005-999,1113.300,Nov 2024 M2M Linqto Investments
+MMW-31,MMW-,31,2024-11-30,Both,,Journal,,0,1113.300,Unrealized Linqto Gains - DNU,4011-000,1113.300,Nov 2024 M2M Linqto Investments
+MMW-32,MMW-,32,2024-12-31,Both,,Journal,,0,419.290,Trading Securities - Water Basket - FMV Adjustment,1102-001-999,419.290,Dec 2024 M2M Trading Securities
+MMW-32,MMW-,32,2024-12-31,Both,,Journal,,419.290,0,Unrealized Securities Gain - DNU,4010-000,419.290,Dec 2024 M2M Trading Securities
+MMW-33,MMW-,33,2024-12-20,Both,,Journal,VEGI,5.940,0,Cash - Fidelity Cash Management Account,1001-001,5.940,Dec 2024 VEGI Dividend
+MMW-33,MMW-,33,2024-12-20,Both,,Journal,VEGI,0,5.940,Income - Ordinary Dividend,4001-001,5.940,Dec 2024 VEGI Dividend
+MMW-34,MMW-,34,2024-12-24,Both,,Journal,XYL,1.210,0,Cash - Fidelity Cash Management Account,1001-001,1.210,Dec 2024 XYL Dividend
+MMW-34,MMW-,34,2024-12-24,Both,,Journal,XYL,0,1.210,Income - Ordinary Dividend,4001-001,1.210,Dec 2024 XYL Dividend
+MMW-35,MMW-,35,2024-12-31,Both,,Journal,FDRXX,5.080,0,Cash - Fidelity Cash Management Account,1001-001,11.180,"Dec 2024 SPAXX, FDRXX, LAND Dividend"
+MMW-35,MMW-,35,2024-12-31,Both,,Journal,FDRXX,0,5.080,Income - Ordinary Dividend,4001-001,11.180,"Dec 2024 SPAXX, FDRXX, LAND Dividend"
+MMW-35,MMW-,35,2024-12-31,Both,,Journal,SPAXX,0,3.500,Income - Ordinary Dividend,4001-001,11.180,"Dec 2024 SPAXX, FDRXX, LAND Dividend"
+MMW-35,MMW-,35,2024-12-31,Both,,Journal,LAND,0,2.600,Income - Ordinary Dividend,4001-001,11.180,"Dec 2024 SPAXX, FDRXX, LAND Dividend"
+MMW-35,MMW-,35,2024-12-31,Both,,Journal,SPAXX,3.500,0,Cash - Fidelity Cash Management Account,1001-001,11.180,"Dec 2024 SPAXX, FDRXX, LAND Dividend"
+MMW-35,MMW-,35,2024-12-31,Both,,Journal,LAND,2.600,0,Cash - Fidelity Cash Management Account,1001-001,11.180,"Dec 2024 SPAXX, FDRXX, LAND Dividend"
+MMW-36,MMW-,36,2024-12-30,Both,,Journal,GWRS,0.190,0,Cash - Fidelity Cash Management Account,1001-001,0.190,Dec 2024 GWRS Dividend
+MMW-36,MMW-,36,2024-12-30,Both,,Journal,GWRS,0,0.190,Income - Ordinary Dividend,4001-001,0.190,Dec 2024 GWRS Dividend
+MMW-37,MMW-,37,2025-01-08,Both,,Journal,Dividend Income - FPI,62.730,0,Cash - Fidelity Cash Management Account,1001-001,62.730,Jan 2025 Dividend Deposit
+MMW-37,MMW-,37,2025-01-08,Both,,Journal,Dividend Income - FPI,0,62.730,Income - Ordinary Dividend,4001-001,62.730,Jan 2025 Dividend Deposit
+MMW-38,MMW-,38,2025-01-10,Both,,Journal,Dividend Income - ALCO,0.380,0,Cash - Fidelity Cash Management Account,1001-001,0.380,Jan 2025 Dividend Deposit
+MMW-38,MMW-,38,2025-01-10,Both,,Journal,Dividend Income - ALCO,0,0.380,Income - Ordinary Dividend,4001-001,0.380,Jan 2025 Dividend Deposit
+MMW-39,MMW-,39,2025-01-15,Both,,Journal,Dividend Income - FPI,3.270,0,Cash - Fidelity Cash Management Account,1001-001,4.520,Combined Jan 2025 Dividend Deposit
+MMW-39,MMW-,39,2025-01-15,Both,,Journal,Dividend Income - ECL,1.250,0,Cash - Fidelity Cash Management Account,1001-001,4.520,Combined Jan 2025 Dividend Deposit
+MMW-39,MMW-,39,2025-01-15,Both,,Journal,Total Dividend Income - FPI & ECL,0,4.520,Income - Ordinary Dividend,4001-001,4.520,Combined Jan 2025 Dividend Deposit
+MMW-40,MMW-,40,2025-01-01,Both,,Journal,,0,412.620,Unrealized Securities Gain - DNU,4010-000,412.620,Jan 2025 M2M Trading Securities
+MMW-40,MMW-,40,2025-01-01,Both,,Journal,,412.620,0,Unrealized Gain - Water Investments,4202-001,412.620,Jan 2025 M2M Trading Securities
+MMW-41,MMW-,41,2025-01-31,Both,,Journal,Dividend Income - CWCO,2.110,0,Cash - Fidelity Cash Management Account,1001-001,9.530,Combined Jan 2025 Dividend Deposit
+MMW-41,MMW-,41,2025-01-31,Both,,Journal,Dividend Income - FDRXX,4.620,0,Cash - Fidelity Cash Management Account,1001-001,9.530,Combined Jan 2025 Dividend Deposit
+MMW-41,MMW-,41,2025-01-31,Both,,Journal,Dividend Income - SPAXX,0.010,0,Cash - Fidelity Cash Management Account,1001-001,9.530,Combined Jan 2025 Dividend Deposit
+MMW-41,MMW-,41,2025-01-31,Both,,Journal,Dividend Income - LAND,2.600,0,Cash - Fidelity Cash Management Account,1001-001,9.530,Combined Jan 2025 Dividend Deposit
+MMW-41,MMW-,41,2025-01-31,Both,,Journal,Dividend Income - GWRS,0.190,0,Cash - Fidelity Cash Management Account,1001-001,9.530,Combined Jan 2025 Dividend Deposit
+MMW-41,MMW-,41,2025-01-31,Both,,Journal,"Total Dividend Income - CWCO, FDRXX, SPAXX, LAND, GWRS",0,9.530,Income - Ordinary Dividend,4001-001,9.530,Combined Jan 2025 Dividend Deposit
+MMW-42,MMW-,42,2024-12-31,Both,Rubin Brown 4151.01,Journal,,0,2500.000,Investment - YC F24 Orange Fund #1,1103-002-001,2500.000,Restate F24 Orange Fund into two independent investment assets
+MMW-42,MMW-,42,2024-12-31,Both,Rubin Brown 4151.01,Journal,,2500.000,0,Investment - YC F24 Orange Fund #2,1103-002-002,2500.000,Restate F24 Orange Fund into two independent investment assets
+MMW-43,MMW-,43,2024-12-31,Both,Rubin Brown 4151.01,Journal,,0,250.000,Investment - YC F24 Orange Fund #1,1103-002-001,500.000,Recognize income from 2024 K1s
+MMW-43,MMW-,43,2024-12-31,Both,Rubin Brown 4151.01,Journal,,0,250.000,Investment - YC F24 Orange Fund #2,1103-002-002,500.000,Recognize income from 2024 K1s
+MMW-43,MMW-,43,2024-12-31,Both,Rubin Brown 4151.01,Journal,,250.000,0,Income - YC F24 Orange Fund #1,4103-002-001,500.000,Recognize income from 2024 K1s
+MMW-43,MMW-,43,2024-12-31,Both,Rubin Brown 4151.01,Journal,,250.000,0,Income - YC F24 Orange Fund #2,4103-002-002,500.000,Recognize income from 2024 K1s
+MMW-44,MMW-,44,2024-12-31,Both,Rubin Brown 4151.03,Journal,,0,1000.000,Investment - SpaceX - #1,1103-006-001,1000.000,SpaceX capital adjustment entry per 2024 K1
+MMW-44,MMW-,44,2024-12-31,Both,Rubin Brown 4151.03,Journal,,1000.000,0,Income - SpaceX #1,4103-006-001,1000.000,SpaceX capital adjustment entry per 2024 K1
+MMW-46,MMW-,46,2025-01-31,Both,,Journal,,169.400,0,Trading Securities - Water Basket - FMV Adjustment,1102-001-999,169.400,Water Investment Basket M2M
+MMW-46,MMW-,46,2025-01-31,Both,,Journal,,0,169.400,Unrealized Gain - Water Investments,4202-001,169.400,Water Investment Basket M2M
+MMW-47,MMW-,47,2025-01-01,Both,,Journal,,602.400,0,Unrealized Linqto Gains - DNU,4011-000,602.400,Restate Anthropic unrealized gains to new account
+MMW-47,MMW-,47,2025-01-01,Both,,Journal,,0,602.400,Unrealized Gain - Investments - Anthropic - #1,4203-003-001,602.400,Restate Anthropic unrealized gains to new account
+MMW-48,MMW-,48,2025-01-01,Both,,Journal,,510.900,0,Unrealized Linqto Gains - DNU,4011-000,510.900,Restate Anthropic unrealized gains to new account
+MMW-48,MMW-,48,2025-01-01,Both,,Journal,,0,510.900,Unrealized Gain - Investments - Databricks - #1,4203-005-001,510.900,Restate Anthropic unrealized gains to new account
+MMW-49,MMW-,49,2025-02-06,Both,DIV-2025-02-06,Journal,Dividend FERG,1.220,0,Cash - Fidelity Cash Management Account,1001-001,1.220,February Dividends
+MMW-49,MMW-,49,2025-02-06,Both,DIV-2025-02-06,Journal,Aggregate Dividend Income,0,1.220,Income - Ordinary Dividend,4001-001,1.220,February Dividends
+MMW-50,MMW-,50,2025-02-21,Both,DIV-2025-02-21,Journal,Dividend CWT,2.220,0,Cash - Fidelity Cash Management Account,1001-001,2.220,February Dividends
+MMW-50,MMW-,50,2025-02-21,Both,DIV-2025-02-21,Journal,Aggregate Dividend Income,0,2.220,Income - Ordinary Dividend,4001-001,2.220,February Dividends
+MMW-51,MMW-,51,2025-02-28,Both,DIV-2025-02-28,Journal,Dividend FDRXX,53.630,0,Cash - Fidelity Cash Management Account,1001-001,135.870,February Dividends
+MMW-51,MMW-,51,2025-02-28,Both,DIV-2025-02-28,Journal,Dividend LAND,2.600,0,Cash - Fidelity Cash Management Account,1001-001,135.870,February Dividends
+MMW-51,MMW-,51,2025-02-28,Both,DIV-2025-02-28,Journal,Dividend GWRS,0.190,0,Cash - Fidelity Cash Management Account,1001-001,135.870,February Dividends
+MMW-51,MMW-,51,2025-02-28,Both,DIV-2025-02-28,Journal,Dividend SPYI,79.450,0,Cash - Fidelity Cash Management Account,1001-001,135.870,February Dividends
+MMW-51,MMW-,51,2025-02-28,Both,DIV-2025-02-28,Journal,Aggregate Dividend Income,0,135.870,Income - Ordinary Dividend,4001-001,135.870,February Dividends

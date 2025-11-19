@@ -11,22 +11,25 @@ into the accounting system.
   - `gl_entries.csv` - Historical general ledger entries
 - `entries/` - Generated journal entry files by transaction type
   - `dividends/<<<YEAR>>>/` - Dividend journal entries
-  - `purchases/<<<YEAR>>>/` - Purchase transaction entries (future)
-  - `sales/<<<YEAR>>>/` - Sale transaction entries (future)
+  - `purchases/<<<YEAR>>>/` - Purchase transaction entries
+  - `sales/<<<YEAR>>>/` - Sale transaction entries
   - `unrealized/<<<YEAR>>>/` - Mark-to-market entries (future)
 - `examples/` - Template files showing correct format
 
 ## Workflow
 1. User specifies which statement PDF to process
-2. Extract dividend transactions using AI/LLM-based PDF reading
-3. Process dividends per "Dividend Processing Rules" below
-4. Generate CSV file in the format: `MMW-YYYY-MM-DIV.csv`
-5. Save to appropriate `entries/dividends/<<<YEAR>>>/` directory
+2. Extract transactions using AI/LLM-based PDF reading
+3. Process each transaction type per the rules below:
+   - Dividends: Generate `MMW-YYYY-MM-DIV.csv` per "Dividend Processing Rules"
+   - Purchases: Generate `MMW-YYYY-MM-PUR.csv` per "Purchase Processing Rules"
+   - Sales: Generate `MMW-YYYY-MM-SAL.csv` per "Sales Processing Rules"
+4. Save to appropriate `entries/<<<TYPE>>>/<<<YEAR>>>/` directory
 
 ## Current Processing Steps
 1. Process Dividends per "Dividend Processing Rules"
 2. Process Purchases per "Purchase Processing Rules"
-3. Future: Process sales and unrealized gains/losses
+3. Process Sales per "Sales Processing Rules"
+4. Future: Process unrealized gains/losses (mark-to-market entries)
 
 ## Dividend Processing Rules
 Define the standardized process for recording dividend activity in GL transaction format based 
@@ -174,9 +177,13 @@ Securities are organized into thematic baskets (see `books/baskets.md`):
 - **Balanced ETFs (1102-004)**: FDEM, FDEV, FELC, FESM, FMDE, ONEQ
 
 ### Basket Identification
-Fidelity statements include basket notations in the purchase description:
-- Example: "BASKET:10003" typically corresponds to Buy Write ETFs (1102-002)
-- Example: "BASKET:10005" typically corresponds to Holding Companies (1102-003)
+Fidelity statements include basket notations in the purchase description. Complete mapping:
+- **BASKET:10001** → Water Stocks Basket (1102-001)
+- **BASKET:10003** → Buy Write ETFs (1102-002)
+- **BASKET:10005** → Holding Companies (1102-003)
+- **BASKET:10007** → Balanced ETFs (1102-004)
+
+See `books/basket_mapping.md` for detailed basket ID reference with securities list.
 
 ### Journal Entry Structure
 For each **basket** on each **settlement date**, create one journal entry:
@@ -212,7 +219,10 @@ When a security has multiple purchase lines at different prices (fractional + wh
   - Increments for each basket purchase on each settlement date
   - API will assign new numbers upon import, so local numbers are temporary
 - **Reference Number**: Format `PUR-YYYY-MM-DD-BASKETID`
-  - Example: `PUR-2025-02-07-10003` for basket 10003 purchases on 02/07/2025
+  - Example: `PUR-2025-02-07-10001` for Water Stocks purchases on 02/07/2025
+  - Example: `PUR-2025-02-07-10003` for Buy Write ETFs purchases on 02/07/2025
+  - Example: `PUR-2025-02-28-10005` for Holding Companies purchases on 02/28/2025
+  - Example: `PUR-2025-03-15-10007` for Balanced ETFs purchases on 03/15/2025
 
 ### CSV File Structure
 Identical to dividend CSV structure (same 15 columns in same order):
@@ -314,8 +324,193 @@ Before finalizing a purchase CSV file, verify:
 - **Fractional shares**: Always combine with whole shares for the same ticker on the same date
 - **Date format consistency**: Always use YYYY-MM-DD for settlement date (not trade date)
 
+## Sales Processing Rules
+Define the standardized process for recording security sale activity in GL transaction format based
+on brokerage statement data. Sales are organized by **basket** and **settlement date**.
+
+### Investment Baskets
+Securities are sold from the same thematic baskets as purchases:
+- **Water Stocks Basket (1102-001)**: ALCO, AWK, CWCO, CWT, ECL, FERG, FPI, GWRS, LAND, VEGI, WAT, XYL
+- **Buy Write ETFs (1102-002)**: JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST
+- **Holding Companies (1102-003)**: APO, BRKB, BX, KKR, L, TPG
+- **Balanced ETFs (1102-004)**: FDEM, FDEV, FELC, FESM, FMDE, ONEQ
+
+### Basket Identification
+Fidelity statements include basket notations in the sale description. Complete mapping:
+- **BASKET:10001** → Water Stocks Basket (1102-001)
+- **BASKET:10003** → Buy Write ETFs (1102-002)
+- **BASKET:10005** → Holding Companies (1102-003)
+- **BASKET:10007** → Balanced ETFs (1102-004)
+
+### Journal Entry Structure
+For each **basket** on each **settlement date**, create one journal entry:
+
+1. **Cash Line (Debit)**
+   - One debit line for the total sale proceeds across all securities in that basket
+   - Debit Account: **Cash - Fidelity Cash Management Account**
+   - Debit Amount: Sum of all sale proceeds for that basket on that date
+
+2. **Realized Gain/Loss Lines (Debit or Credit)**
+   - One line **per security** for its realized gain or loss
+   - All lines use the same **basket-specific income account** (see Account Names for Sales below)
+   - For each security:
+     - If gain (Proceeds > Cost Basis): **Credit** to basket income account
+     - If loss (Proceeds < Cost Basis): **Debit** to basket income account
+     - Amount: Absolute value of (Proceeds - Cost Basis) for that security
+
+3. **Investment Lines (Credit)**
+   - One credit line **per ticker** sold in that basket on that date
+   - Credit Account: The specific ticker account from the chart of accounts
+     - Example: `Global X Russell 2000 Covered Call ETF (RYLD)` (Account Code: 1102-002-006)
+   - Credit Amount: Total cost basis for that ticker (combining fractional and whole shares)
+
+### Fractional and Multiple Sale Prices
+When a security is sold in multiple transactions at different prices (fractional + whole shares):
+- **Combine all quantities and amounts** into a single journal entry line
+- Example: RYLD sold as 221.000 shares @ $14.98010 ($3,310.60) + 0.842 shares @ $14.98500 ($12.62)
+- Result: One credit line for RYLD totaling $3,668.78 (cost basis), proceeds $3,323.22, loss $345.56
+
+### File Naming Convention
+- Format: `MMW-YYYY-MM-SAL.csv`
+- Example: `MMW-2025-09-SAL.csv` for September 2025 sales
+- Suffix `-SAL` indicates sale transactions
+- One file per month containing all sale entries for that month
+
+### Journal Numbering for Sales
+- **Journal Number Prefix**: `MMW-` (constant)
+- **Journal Number Suffix**: Sequential number starting at 1 for each file
+  - Resets to 1 for each new month/file
+  - Increments for each basket sale on each settlement date
+  - API will assign new numbers upon import, so local numbers are temporary
+- **Reference Number**: Format `SAL-YYYY-MM-DD-BASKETID`
+  - Example: `SAL-2025-09-29-10003` for Buy Write ETFs sales on 09/29/2025
+  - Example: `SAL-2025-09-15-10001` for Water Stocks sales on 09/15/2025
+
+### CSV File Structure
+Identical to dividend and purchase CSV structure (same 15 columns in same order):
+1. Journal Date - Settlement date in YYYY-MM-DD format
+2. Reference Number - Format: SAL-YYYY-MM-DD-BASKETID
+3. Journal Number Prefix - Always "MMW-"
+4. Journal Number Suffix - Sequential: 1, 2, 3, etc.
+5. Notes - Description format (must be quoted):
+   - **Same for all lines in a transaction**
+   - Format: `"YYYY-MM-DD Sale - [BASKET NAME] - [SYMBOL1, SYMBOL2, ...]"`
+   - Example: `"2025-09-29 Sale - Buy Write ETFs - MUST, RYLD"`
+6. Journal Type - Always "both"
+7. Currency - Always "USD"
+8. Account - Account name from chart of accounts (exact match required)
+9. Description - Transaction detail format (must be quoted):
+   - For debit (cash) line: `"Proceeds from [BASKET NAME] - [SYMBOL1, SYMBOL2, ...]"` (e.g., `"Proceeds from Buy Write ETFs - MUST, RYLD"`)
+   - For gain/loss lines (one per security):
+     - If gain: `"Realized Gain - [SYMBOL]"` (e.g., `"Realized Gain - MUST"`)
+     - If loss: `"Realized Loss - [SYMBOL]"` (e.g., `"Realized Loss - RYLD"`)
+   - For credit (investment) lines: `"Sale - [SYMBOL] - [TOTAL_QTY] @ ~ $[AVG_PRICE]"` (e.g., `"Sale - RYLD - 221.842 @ ~ $14.98"`)
+     - TOTAL_QTY = Combined quantity sold (fractional + whole shares)
+     - AVG_PRICE = Approximate average sale price (rounded to 2 decimals)
+10. Contact Name - Leave empty
+11. Debit - Debit amount or empty
+12. Credit - Credit amount or empty
+13. Project Name - Leave empty
+14. Status - Always "published"
+15. Exchange Rate - Leave empty
+
+### Sales Processing Rules
+- Dates must be recorded in **YYYY-MM-DD** format (use settlement date, not trade date)
+- No empty rows may appear in the CSV file
+- **Ignore money market fund sales** (FDRXX, SPAXX redemptions) - these are cash management
+- **Ignore "REDEEMED TO COVER A SETTLED OBLIGATION"** transactions - these are netted automatically
+- Combine sales with different prices for the same ticker on the same date into one line
+- Each journal entry must balance (total debits = total credits)
+- **Quote both the Notes and Description fields** to properly handle comma-separated symbol lists
+- Group by basket AND settlement date - do not mix different baskets or dates in the same entry
+- Calculate realized gain/loss as: Sale Proceeds - Cost Basis
+  - Positive result = Gain (credit to income account)
+  - Negative result = Loss (debit to income account)
+
+### Example: Single Basket Sale on One Date
+
+**Statement Data (09/29/2025 - BASKET:10003):**
+- MUST: 49.000 @ $20.44240 ($1,001.68) + 0.830 @ $20.44000 ($16.97) = **Proceeds: $1,018.65, Cost Basis: $1,020.98, Loss: -$2.33**
+- RYLD: 221.000 @ $14.98010 ($3,310.60) + 0.842 @ $14.98500 ($12.62) = **Proceeds: $3,323.22, Cost Basis: $3,668.78, Loss: -$345.56**
+- **Total: Proceeds $4,341.87, Cost Basis $4,689.76, Net Loss: -$347.89**
+
+**Journal Entry:**
+```
+Journal Date: 2025-09-29
+Reference: SAL-2025-09-29-10003
+Journal Number: MMW-1
+Notes (for ALL lines): "2025-09-29 Sale - Buy Write ETFs - MUST, RYLD"
+
+Debit  - Cash - Fidelity Cash Management Account                     - "Proceeds from Buy Write ETFs - MUST, RYLD" - $4,341.87
+Debit  - Income - Equity Securities Baskets - Buy Write ETFs         - "Realized Loss - MUST" - $2.33
+Debit  - Income - Equity Securities Baskets - Buy Write ETFs         - "Realized Loss - RYLD" - $345.56
+Credit - Columbia Multi-Sector Municipal Income ETF (MUST)           - "Sale - MUST - 49.830 @ ~ $20.44" - $1,020.98
+Credit - Global X Russell 2000 Covered Call ETF (RYLD)               - "Sale - RYLD - 221.842 @ ~ $14.98" - $3,668.78
+```
+
+**Note on Gain/Loss Treatment:**
+- MUST loss of $2.33 is recorded as a **debit** to Income - Equity Securities Baskets - Buy Write ETFs
+- RYLD loss of $345.56 is recorded as a **debit** to Income - Equity Securities Baskets - Buy Write ETFs
+- Each security has its own gain/loss line, but all use the same basket-specific income account
+- If a security has a gain, it would be recorded as a **credit** to the basket income account
+- This approach allows tracking individual security performance while maintaining basket-level income aggregation
+
+### Example Files and Templates
+- Output location: `entries/sales/<<<YEAR>>>/MMW-YYYY-MM-SAL.csv`
+- Example output: `entries/sales/2025/MMW-2025-09-SAL.csv`
+
+### Data Sources
+When processing sale information from Fidelity statements:
+1. Look for "Securities Bought & Sold" section in the Activity pages
+2. Identify "You Sold" transactions (excluding money market redemptions)
+3. Extract: Settlement Date, Security Name, Symbol/CUSIP, Description (for basket ID), Quantity, Price, Cost Basis, and Amount (proceeds)
+4. Extract gain/loss information (short-term gain, short-term loss)
+5. Group all sales by Basket ID and Settlement Date
+6. Combine multiple price points for the same security on the same date
+7. Calculate net realized gain/loss for each basket/date combination
+
+### Account Names for Sales
+All account names in the CSV must exactly match the account names in `books/chart_of_accounts.csv`:
+- **Cash account**: `Cash - Fidelity Cash Management Account` (Account Code: 1001-001)
+- **Gain/Loss accounts** (basket-specific):
+  - Water Stocks Basket (1102-001): `Income - Equity Securities Baskets - Water Stocks` (Account Code: 4102-001)
+  - Buy Write ETFs (1102-002): `Income - Equity Securities Baskets - Buy Write ETFs` (Account Code: 4102-002)
+  - Holding Companies (1102-003): `Income - Equity Securities Baskets - Holding Companies` (Account Code: 4102-003)
+  - Balanced ETFs (1102-004): `Income - Equity Securities Baskets - Balanced ETFs` (Account Code: 4102-004)
+- **Investment accounts**: Use the full account name from the chart of accounts
+  - Example: `Columbia Multi-Sector Municipal Income ETF (MUST)` (Account Code: 1102-002-007)
+  - Example: `Global X Russell 2000 Covered Call ETF (RYLD)` (Account Code: 1102-002-006)
+
+### Quality Checks for Sales
+Before finalizing a sale CSV file, verify:
+1. **Totals match statement**: Sum of all sale proceeds equals the total securities sold shown on the statement
+2. **Gain/loss reconciliation**: Net realized gain/loss matches the statement's "Realized Gains and Losses from Sales" section
+3. **All baskets present**: Every basket sale from the statement is represented
+4. **Balanced entries**: For each journal entry (same Journal Number Suffix), total debits equal total credits
+5. **Symbol accuracy**: Ticker symbols match exactly as shown on the statement and chart of accounts
+6. **Sequential numbering**: Journal Number Suffix increments sequentially (1, 2, 3, ...)
+7. **Proper quoting**: All Notes and Description fields are properly quoted
+8. **No money market funds**: FDRXX, SPAXX redemptions should not appear in sale entries
+9. **Correct account names**: All account names exactly match the chart of accounts
+10. **Correct gain/loss direction**: Gains are credits, losses are debits to the income account
+
+### Common Patterns for Sales
+- **Single basket, single date**: Cash debit + gain/loss lines (one per security) + investment credits (one per ticker)
+- **Multiple baskets in one month**: Separate journal entries for each basket/date combination
+- **Fractional shares**: Always combine with whole shares for the same ticker on the same date
+- **Date format consistency**: Always use YYYY-MM-DD for settlement date (not trade date)
+- **Gains**: Credit to basket-specific income account (one line per security with a gain)
+- **Losses**: Debit to basket-specific income account (one line per security with a loss)
+- **Mixed results**: Some securities may have gains (credits) while others have losses (debits), all to the same basket account
+
 ## Future Development Notes
 - Python code will automate the PDF extraction and CSV generation process
 - API integration will handle the import and reassign journal numbers
-- The system is designed to scale to other transaction types (purchases, sales, unrealized gains)
+- The system is designed to scale to unrealized gains/losses (mark-to-market entries)
 - Journal numbers are temporary and reset each month; the accounting system assigns permanent numbers on import
+
+## Processing Status
+- ✅ **Dividends**: Fully implemented and documented
+- ✅ **Purchases**: Fully implemented and documented
+- ✅ **Sales**: Fully implemented and documented
+- ⏳ **Unrealized Gains/Losses**: Future implementation

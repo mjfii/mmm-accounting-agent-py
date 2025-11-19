@@ -1,5 +1,52 @@
 Account ID,Account Name,Account Code,Description,Account Type,Mileage Rate,Mileage Unit,IsMileage,Account # ,Account Status,Currency,Parent Account
-5827744000000090156,Cash - Fidelity Cash Management Account,1001-001,Fidelity Cash Management Account Number: Z40408059,Cash,0.000,,false,,Active,USD,
+5827744000000010001,Other Charges,,Miscellaneous charges like adjustments made to the invoice can be recorded in this account.,Income,0.000,,false,,Active,USD,
+5827744000000032023,Lodging,,Any expense related to putting up at motels etc while on business travel can be entered here.,Expense,0.000,,false,,Active,USD,
+5827744000000000358,Undeposited Funds,,Record funds received by your company yet to be deposited in a bank as undeposited funds and group them as a current asset in your balance sheet.,Cash,0.000,,false,,Active,USD,
+5827744000000000361,Petty Cash,,It is a small amount of cash that is used to pay your minor or casual expenses rather than writing a check.,Cash,0.000,,false,,Active,USD,
+5827744000000000364,Accounts Receivable,,The money that customers owe you becomes the accounts receivable. A good example of this is a payment expected from an invoice sent to your customer.,Accounts Receivable,0.000,,false,,Active,USD,
+5827744000000000367,Furniture and Equipment,,Purchases of furniture and equipment for your office that can be used for a long period of time usually exceeding one year can be tracked with this account.,Fixed Asset,0.000,,false,,Active,USD,
+5827744000000000370,Advance Tax,,"Any tax which is paid in advance is recorded into the advance tax account. This advance tax payment could be a quarterly, half yearly or yearly payment.",Other Current Asset,0.000,,false,,Active,USD,
+5827744000000000373,Accounts Payable,,"This is an account of all the money which you owe to others like a pending bill payment to a vendor,etc.",Accounts Payable,0.000,,false,,Active,USD,
+5827744000000000376,Tax Payable,,The amount of money which you owe to your tax authority is recorded under the tax payable account. This amount is a sum of your outstanding in taxes and the tax charged on sales.,Other Current Liability,0.000,,false,,Active,USD,
+5827744000000000379,Retained Earnings,,The earnings of your company which are not distributed among the share holders is accounted as retained earnings.,Equity,0.000,,false,,Active,USD,
+5827744000000000382,Owner's Equity,,The owners rights to the assets of a company can be quantified in the owner''s equity account.,Equity,0.000,,false,,Active,USD,
+5827744000000000385,Opening Balance Offset,,This is an account where you can record the balance from your previous years earning or the amount set aside for some activities. It is like a buffer account for your funds.,Equity,0.000,,false,,Active,USD,
+5827744000000000388,Sales,,The income from the sales in your business is recorded under the sales account.,Income,0.000,,false,,Active,USD,
+5827744000000000391,General Income,,A general category of account where you can record any income which cannot be recorded into any other category.,Income,0.000,,false,,Active,USD,
+5827744000000005001,Unearned Revenue,,"A liability account that reports amounts received in advance of providing goods or services. When the goods or services are provided, this account balance is decreased and a revenue account is increased.",Other Current Liability,0.000,,false,,Active,USD,
+5827744000000000394,Interest Income,,A percentage of your balances and deposits are given as interest to you by your banks and financial institutions. This interest is recorded into the interest income account.,Income,0.000,,false,,Active,USD,
+5827744000000000397,Late Fee Income,,Any late fee income is recorded into the late fee income account. The late fee is levied when the payment for an invoice is not received by the due date.,Income,0.000,,false,,Active,USD,
+5827744000000000400,Office Supplies,,All expenses on purchasing office supplies like stationery are recorded into the office supplies account.,Expense,0.000,,false,,Active,USD,
+5827744000000000403,Advertising And Marketing,,"Your expenses on promotional, marketing and advertising activities like banners, web-adds, trade shows, etc. are recorded in advertising and marketing account.",Expense,0.000,,false,,Active,USD,
+5827744000000000406,Discount,,Any reduction on your selling price as a discount can be recorded into the discount account.,Income,0.000,,false,,Active,USD,
+5827744000000000409,Bank Fees and Charges,,"Any bank fees levied is recorded into the bank fees and charges account. A bank account maintenance fee, transaction charges, a late payment fee are some examples.",Expense,0.000,,false,,Active,USD,
+5827744000000000412,Credit Card Charges,,"Service fees for transactions , balance transfer fees, annual credit fees and other charges levied on a credit card are recorded into the credit card account.",Expense,0.000,,false,,Active,USD,
+5827744000000000415,Exchange Gain or Loss,,Changing the conversion rate can result in a gain or a loss. You can record this into the exchange gain or loss account.,Other Expense,0.000,,false,,Active,USD,
+5827744000000000418,Travel Expense,,"Expenses on business travels like hotel bookings, flight charges, etc. are recorded as travel expenses.",Expense,0.000,,false,,Active,USD,
+5827744000000000421,Telephone Expense,,"The expenses on your telephone, mobile and fax usage are accounted as telephone expenses.",Expense,0.000,,false,,Active,USD,
+5827744000000000424,Automobile Expense,,"Transportation related expenses like fuel charges and maintenance charges for automobiles, are included to the automobile expense account.",Expense,0.000,,false,,Active,USD,
+5827744000000000427,IT and Internet Expenses,,"Money spent on your IT infrastructure and usage like  internet connection, purchasing computer equipment etc is recorded as an IT and Computer Expense.",Expense,0.000,,false,,Active,USD,
+5827744000000000433,Janitorial Expense,,All your janitorial and cleaning expenses are recorded into the janitorial expenses account.,Expense,0.000,,false,,Active,USD,
+5827744000000014001,Shipping Charge,,Shipping charges made to the invoice will be recorded in this account.,Income,0.000,,false,,Active,USD,
+5827744000000000436,Postage,,"Your expenses on ground mails, shipping and air mails can be recorded under the postage account.",Expense,0.000,,false,,Active,USD,
+5827744000000000439,Bad Debt,,Any amount which is lost and is unrecoverable is recorded into the bad debt account.,Expense,0.000,,false,,Active,USD,
+5827744000000003001,Opening Balance Adjustments,,This account will hold the difference in the debits and credits entered during the opening balance.,Other Current Liability,0.000,,false,,Active,USD,
+5827744000000035001,Employee Advance,,Money paid out to an employee in advance can be tracked here till it's repaid or shown to be spent for company purposes.,Other Current Asset,0.000,,false,,Active,USD,
+5827744000000000442,Printing and Stationery,,Expenses incurred by the organization towards printing and stationery.,Expense,0.000,,false,,Active,USD,
+5827744000000035003,Employee Reimbursements,,This account can be used to track the reimbursements that are due to be paid out to employees.,Other Current Liability,0.000,,false,,Active,USD,
+5827744000000000445,Salaries and Employee Wages,,Salaries for your employees and the wages paid to workers are recorded under the salaries and wages account.,Expense,0.000,,false,,Active,USD,
+5827744000000035005,Uncategorized,,This account can be used to temporarily track expenses that are yet to be identified and classified into a particular category,Expense,0.000,,false,,Active,USD,
+5827744000000000448,Meals and Entertainment,,Expenses on food and entertainment are recorded into this account.,Expense,0.000,,false,,Active,USD,
+5827744000000000451,Depreciation Expense,,Any depreciation in value of your assets can be captured as a depreciation expense.,Expense,0.000,,false,,Active,USD,
+5827744000000000454,Consultant Expense,,Charges for availing the services of a consultant is recorded as a consultant expenses. The fees paid to a soft skills consultant to impart personality development training for your employees is a good example.,Expense,0.000,,false,,Active,USD,
+5827744000000000457,Repairs and Maintenance,,The costs involved in maintenance and repair of assets is recorded under this account.,Expense,0.000,,false,,Active,USD,
+5827744000000045001,Dimension Adjustments,,"This adjustment account tracks the transfers between different dimensions like tags, branches.",Other Liability,0.000,,false,,Active,USD,
+5827744000000000460,Other Expenses,,Any minor expense on activities unrelated to primary business operations is recorded under the other expense account.,Expense,0.000,,false,,Active,USD,
+5827744000000034001,Inventory Asset,,An account which tracks the value of goods in your inventory.,Stock,0.000,,false,,Active,USD,
+5827744000000034003,Cost of Goods Sold,,An expense account which tracks the value of the goods sold.,Cost Of Goods Sold,0.000,,false,,Active,USD,
+5827744000000012001,Drawings,,The money withdrawn from a business by its owner can be tracked with this account.,Equity,0.000,,false,,Active,USD,
+5827744000000072001,Purchase Discounts,,Tracks any reduction that your vendor offers on your purchases. Some vendors also provide them to encourage quick payment settlement.,Expense,0.000,,false,,Active,USD,
+5827744000000090011,Prepaid Expenses,,An asset account that reports amounts paid in advance while purchasing goods or services from a vendor.,Other Current Asset,0.000,,false,,Active,USD,
 5827744000000090160,Family Capital,3001-000,,Equity,0.000,,false,,Active,USD,
 5827744000000095215,Family Capital - MJFII,3001-000-001,,Equity,0.000,,false,,Active,USD,Family Capital
 5827744000000095219,Family Capital - MEF,3001-000-002,,Equity,0.000,,false,,Active,USD,Family Capital
@@ -10,7 +57,6 @@ Account ID,Account Name,Account Code,Description,Account Type,Mileage Rate,Milea
 5827744000000134003,Investment - YC F24 Orange Fund #2,1103-002-002,"F24 Orange Fund RC ML, EIN 33-3758296",Other Asset,0.000,,false,,Active,USD,Investment - YC F24 Orange Fund
 5827744000000090892,Investment - Pirouette Medical Inc.,1103-004,,Other Asset,0.000,,false,,Active,USD,
 5827744000000100019,Investment - Pirouette Medical Inc. #1,1103-004-001,,Other Asset,0.000,,false,,Active,USD,Investment - Pirouette Medical Inc.
-5827744000000090944,Cash - Linqto Wallet,1001-002,,Cash,0.000,,false,,Active,USD,
 5827744000000090968,Wire & Banking Fees,5001-003,,Expense,0.000,,false,,Active,USD,
 5827744000000093056,Investment - Anthropic PBC,1103-003,,Other Asset,0.000,,false,,Active,USD,
 5827744000000100025,Investment - Anthropic PBC #1,1103-003-001,,Other Asset,0.000,,false,,Active,USD,Investment - Anthropic PBC
@@ -27,8 +73,11 @@ Account ID,Account Name,Account Code,Description,Account Type,Mileage Rate,Milea
 5827744000000134181,Income - Equity Securities,4101-000,,Income,0.000,,false,,Active,USD,
 5827744000000134203,Income - Interest,4002-000,,Income,0.000,,false,,Active,USD,
 5827744000000135003,Unrealized Gain - Equity Baskets,4202-000,,Income,0.000,,false,,Active,USD,
-5827744000000135009,Unrealized Gain - Water Investments,4202-001,,Income,0.000,,false,,Active,USD,Unrealized Gain - Equity Baskets
-5827744000000095067,Unrealized Securities Gain - DNU,4010-000,,Income,0.000,,false,,Active,USD,Unrealized Gain - Water Investments
+5827744000000135009,Unrealized Gain - Equity Baskets - Water Investments,4202-001,,Income,0.000,,false,,Active,USD,Unrealized Gain - Equity Baskets
+5827744000000095067,Unrealized Securities Gain - DNU,4010-000,,Income,0.000,,false,,Active,USD,Unrealized Gain - Equity Baskets - Water Investments
+5827744000000139273,Unrealized Gain - Equity Baskets - Buy Write ETFs,4202-002,,Income,0.000,,false,,Active,USD,Unrealized Gain - Equity Baskets
+5827744000000139287,Unrealized Gain - Equity Baskets - Holding Companies,4202-003,,Income,0.000,,false,,Active,USD,Unrealized Gain - Equity Baskets
+5827744000000139293,Unrealized Gain - Equity Baskets - Balanced ETFs,4202-004,,Income,0.000,,false,,Active,USD,Unrealized Gain - Equity Baskets
 5827744000000135141,Income - Dividends,4001-000,,Income,0.000,,false,,Active,USD,
 5827744000000090186,Income - Ordinary Dividends,4001-001,Dividend Income,Income,0.000,,false,,Active,USD,Income - Dividends
 5827744000000134209,Income - Qualified Dividends,4001-002,,Income,0.000,,false,,Active,USD,Income - Dividends
@@ -91,3 +140,7 @@ Account ID,Account Name,Account Code,Description,Account Type,Mileage Rate,Milea
 5827744000000136815,Fidelity Momentum Factor ETF (FMDE),1102-004-005,,Other Current Asset,0.000,,false,,Active,USD,Trading Securities - Balanced ETFs
 5827744000000136823,Fidelity Nasdaq Composite Index ETF (ONEQ),1102-004-006,,Other Current Asset,0.000,,false,,Active,USD,Trading Securities - Balanced ETFs
 5827744000000136831,Trading Securities - Balanced ETFs - FMV Adjustment,1102-004-999,,Other Current Asset,0.000,,false,,Active,USD,Trading Securities - Balanced ETFs
+5827744000000139253,Cash,1001-000,,Cash,0.000,,false,,Active,USD,
+5827744000000090156,Cash - Fidelity Cash Management Account,1001-001,Fidelity Cash Management Account Number: Z40408059,Cash,0.000,,false,,Active,USD,Cash
+5827744000000090944,Cash - Linqto Wallet,1001-002,,Cash,0.000,,false,,Active,USD,Cash
+5827744000000139267,Cash - Wefunder Wallet,1001-003,,Cash,0.000,,false,,Active,USD,Cash

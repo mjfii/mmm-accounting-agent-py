@@ -503,14 +503,195 @@ Before finalizing a sale CSV file, verify:
 - **Losses**: Debit to basket-specific income account (one line per security with a loss)
 - **Mixed results**: Some securities may have gains (credits) while others have losses (debits), all to the same basket account
 
+## Unrealized Gains/Losses Processing Rules
+Define the standardized process for recording mark-to-market adjustments (unrealized gains and losses) in GL transaction format based on brokerage statement data. These entries adjust investment values to fair market value at month-end.
+
+**IMPORTANT: All unrealized gain/loss journal entries MUST be dated on the last day of the month** (e.g., 2025-02-28, 2025-03-31, 2025-04-30). Never use any other date.
+
+### Monthly Mark-to-Market Process
+At the end of each month, create journal entries to adjust investment holdings to their current fair market values:
+- One journal entry **per basket** per month
+- Records the **net unrealized gain or loss** for all securities in that basket
+- Uses FMV (Fair Market Value) Adjustment accounts and Unrealized Gain accounts
+- **All entries must be dated on the last day of the month**
+
+### Investment Baskets
+Mark-to-market entries are organized by the same baskets as purchases and sales:
+- **Water Stocks Basket (1102-001)**: ALCO, AWK, CWCO, CWT, ECL, FERG, FPI, GWRS, LAND, VEGI, WAT, XYL
+- **Buy Write ETFs (1102-002)**: JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST
+- **Holding Companies (1102-003)**: APO, BRKB, BX, KKR, L, TPG
+- **Balanced ETFs (1102-004)**: FDEM, FDEV, FELC, FESM, FMDE, ONEQ
+
+### Journal Entry Structure
+For each **basket** at **month-end**, create one journal entry showing the net unrealized gain/loss:
+
+**For a Net Unrealized Loss:**
+1. **Unrealized Loss Line (Debit)**
+   - Debit Account: Basket-specific Unrealized Gain account (4202-xxx)
+   - Debit Amount: Absolute value of the net unrealized loss for the basket
+
+2. **FMV Adjustment Line (Credit)**
+   - Credit Account: Basket-specific FMV Adjustment account (1102-xxx-999)
+   - Credit Amount: Same as debit amount (decreases asset value)
+
+**For a Net Unrealized Gain:**
+1. **FMV Adjustment Line (Debit)**
+   - Debit Account: Basket-specific FMV Adjustment account (1102-xxx-999)
+   - Debit Amount: The net unrealized gain for the basket
+
+2. **Unrealized Gain Line (Credit)**
+   - Credit Account: Basket-specific Unrealized Gain account (4202-xxx)
+   - Credit Amount: Same as debit amount (recognizes income)
+
+### File Naming Convention
+- Format: `MMW-YYYY-MM-UNR.csv`
+- Example: `MMW-2025-02-UNR.csv` for February 2025 unrealized gains/losses
+- Suffix `-UNR` indicates unrealized gain/loss transactions
+- One file per month containing all basket unrealized gain/loss entries for that month
+
+### Journal Numbering for Unrealized Gains/Losses
+- **Journal Number Prefix**: `MMW-` (constant)
+- **Journal Number Suffix**: Sequential number starting at 1 for each file
+  - Resets to 1 for each new month/file
+  - Increments for each basket (typically 3-4 entries per month)
+  - API will assign new numbers upon import, so local numbers are temporary
+- **Reference Number**: Format `UNR-YYYY-MM-BASKETID`
+  - Example: `UNR-2025-02-10001` for Water Stocks basket unrealized gains/losses for February 2025
+  - Example: `UNR-2025-02-10003` for Buy Write ETFs basket unrealized gains/losses for February 2025
+  - Example: `UNR-2025-02-10005` for Holding Companies basket unrealized gains/losses for February 2025
+
+### CSV File Structure
+Identical to other transaction CSV structure (same 15 columns in same order):
+1. Journal Date - Last day of the month in YYYY-MM-DD format (e.g., 2025-02-28)
+2. Reference Number - Format: UNR-YYYY-MM-BASKETID
+3. Journal Number Prefix - Always "MMW-"
+4. Journal Number Suffix - Sequential: 1, 2, 3, etc.
+5. Notes - Description format (must be quoted):
+   - **Same for all lines in a transaction**
+   - Format: `"YYYY-MM-DD Mark-to-Market - [BASKET NAME]"`
+   - Example: `"2025-02-28 Mark-to-Market - Buy Write ETFs"`
+6. Journal Type - Always "both"
+7. Currency - Always "USD"
+8. Account - Account name from chart of accounts (exact match required)
+9. Description - Transaction detail format (must be quoted):
+   - For gain: `"Unrealized Gain - [BASKET NAME]"` (e.g., `"Unrealized Gain - Holding Companies"`)
+   - For loss: `"Unrealized Loss - [BASKET NAME]"` (e.g., `"Unrealized Loss - Buy Write ETFs"`)
+   - For FMV adjustment: `"FMV Adjustment - [BASKET NAME]"` (e.g., `"FMV Adjustment - Buy Write ETFs"`)
+10. Contact Name - Leave empty
+11. Debit - Debit amount or empty
+12. Credit - Credit amount or empty
+13. Project Name - Leave empty
+14. Status - Always "published"
+15. Exchange Rate - Leave empty
+
+### Unrealized Gains/Losses Processing Rules
+- **CRITICAL**: Journal date is always the **last day of the month** (e.g., 2025-02-28 for February, 2025-03-31 for March)
+  - Use the last calendar day of the statement month, regardless of statement end date
+  - For February: Use 28th (or 29th in leap years)
+  - For 30-day months (April, June, September, November): Use 30th
+  - For 31-day months (January, March, May, July, August, October, December): Use 31st
+- No empty rows may appear in the CSV file
+- One entry per basket showing **net unrealized gain/loss** for all securities in that basket
+- Each journal entry must balance (total debits = total credits)
+- **Quote both the Notes and Description fields**
+- Net unrealized gain/loss is calculated as: Market Value - Cost Basis (per statement Holdings section)
+  - Positive result = Unrealized Gain (debit FMV Adjustment, credit Unrealized Gain account)
+  - Negative result = Unrealized Loss (debit Unrealized Gain account, credit FMV Adjustment)
+- Use the "Total" unrealized gain/loss amount shown on the statement for each basket
+- Only create entries for baskets that have holdings during the statement period
+
+### Example: Basket with Net Unrealized Loss
+
+**Statement Data (February 28, 2025 - Buy Write ETFs Basket):**
+- Market Value: $19,971.11
+- Cost Basis: $20,399.89
+- Net Unrealized Loss: **-$428.78**
+
+**Journal Entry:**
+```
+Journal Date: 2025-02-28
+Reference: UNR-2025-02-10003
+Journal Number: MMW-1
+Notes (for ALL lines): "2025-02-28 Mark-to-Market - Buy Write ETFs"
+
+Debit  - Unrealized Gain - Equity Baskets - Buy Write ETFs          - "Unrealized Loss - Buy Write ETFs" - $428.78
+Credit - Trading Securities - Buy-Write ETFs - FMV Adjustment       - "FMV Adjustment - Buy Write ETFs" - $428.78
+```
+
+### Example: Basket with Net Unrealized Gain
+
+**Statement Data (February 28, 2025 - Holding Companies Basket):**
+- Market Value: $10,430.90
+- Cost Basis: $10,299.60
+- Net Unrealized Gain: **+$131.30**
+
+**Journal Entry:**
+```
+Journal Date: 2025-02-28
+Reference: UNR-2025-02-10005
+Journal Number: MMW-2
+Notes (for ALL lines): "2025-02-28 Mark-to-Market - Holding Companies"
+
+Debit  - Trading Securities - Holding Companies - FMV Adjustment    - "FMV Adjustment - Holding Companies" - $131.30
+Credit - Unrealized Gain - Equity Baskets - Holding Companies       - "Unrealized Gain - Holding Companies" - $131.30
+```
+
+### Example Files and Templates
+- Output location: `entries/unrealized/<<<YEAR>>>/MMW-YYYY-MM-UNR.csv`
+- Example output: `entries/unrealized/2025/MMW-2025-02-UNR.csv`
+
+### Data Sources
+When processing unrealized gain/loss information from Fidelity statements:
+1. Look for "Holdings" section in the statement (typically pages 3-5)
+2. Identify securities by basket (use basket lists from Purchase/Sales sections)
+3. For each basket, sum the "Unrealized Gain/Loss" column for all securities in that basket
+4. **CRITICAL**: Determine the last day of the statement month and use that as the journal date
+   - Example: February 2025 statement → use 2025-02-28
+   - Example: March 2025 statement → use 2025-03-31
+5. Compare the subtotals to the "Total Exchange Traded Products", "Total Stocks", etc. sections
+
+### Account Names for Unrealized Gains/Losses
+All account names in the CSV must exactly match the account names in `books/chart_of_accounts.csv`:
+- **Unrealized Gain/Loss accounts** (basket-specific):
+  - Water Stocks Basket (1102-001): `Unrealized Gain - Equity Baskets - Water Investments` (Account Code: 4202-001)
+  - Buy Write ETFs (1102-002): `Unrealized Gain - Equity Baskets - Buy Write ETFs` (Account Code: 4202-002)
+  - Holding Companies (1102-003): `Unrealized Gain - Equity Baskets - Holding Companies` (Account Code: 4202-003)
+  - Balanced ETFs (1102-004): `Unrealized Gain - Equity Baskets - Balanced ETFs` (Account Code: 4202-004)
+- **FMV Adjustment accounts** (basket-specific):
+  - Water Stocks Basket: `Trading Securities - Water Basket - FMV Adjustment` (Account Code: 1102-001-999)
+  - Buy Write ETFs: `Trading Securities - Buy-Write ETFs - FMV Adjustment` (Account Code: 1102-002-999)
+  - Holding Companies: `Trading Securities - Holding Companies - FMV Adjustment` (Account Code: 1102-003-999)
+  - Balanced ETFs: `Trading Securities - Balanced ETFs - FMV Adjustment` (Account Code: 1102-004-999)
+
+### Quality Checks for Unrealized Gains/Losses
+Before finalizing an unrealized gains/losses CSV file, verify:
+1. **One entry per basket**: Each basket with holdings should have exactly one journal entry
+2. **Balanced entries**: For each journal entry, total debits equal total credits
+3. **CRITICAL - Correct date**: Journal date MUST be the last day of the month (e.g., 2025-02-28, 2025-03-31)
+   - Verify the date is the last calendar day of the month, not just the statement date
+   - February: 28th (or 29th in leap years)
+   - April, June, September, November: 30th
+   - January, March, May, July, August, October, December: 31st
+4. **Sequential numbering**: Journal Number Suffix increments sequentially (1, 2, 3, 4)
+5. **Proper quoting**: All Notes and Description fields are properly quoted
+6. **Correct account names**: All account names exactly match the chart of accounts
+7. **Correct direction**: Losses debit Unrealized Gain account, gains credit Unrealized Gain account
+8. **Month-end only**: These entries should only be created once per month at month-end
+
+### Common Patterns for Unrealized Gains/Losses
+- **Net loss**: Debit Unrealized Gain account, Credit FMV Adjustment account (decreases asset, recognizes loss)
+- **Net gain**: Debit FMV Adjustment account, Credit Unrealized Gain account (increases asset, recognizes gain)
+- **Multiple baskets**: Separate journal entries for each basket (typically 3-4 per month)
+- **Month-end timing**: Always dated the last day of the month (e.g., 2025-02-28, 2025-03-31)
+- **Portfolio view**: Provides snapshot of unrealized performance for each investment basket
+
 ## Future Development Notes
 - Python code will automate the PDF extraction and CSV generation process
 - API integration will handle the import and reassign journal numbers
-- The system is designed to scale to unrealized gains/losses (mark-to-market entries)
 - Journal numbers are temporary and reset each month; the accounting system assigns permanent numbers on import
 
 ## Processing Status
 - ✅ **Dividends**: Fully implemented and documented
 - ✅ **Purchases**: Fully implemented and documented
 - ✅ **Sales**: Fully implemented and documented
-- ⏳ **Unrealized Gains/Losses**: Future implementation
+- ✅ **Unrealized Gains/Losses**: Fully implemented and documented

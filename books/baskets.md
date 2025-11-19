@@ -6,7 +6,7 @@ Each of the baskets need to be balanced at the end of each month.
 ### Water Stocks Basket (1102-001)
 ALCO, AWK, CWCO, CWT, ECL, FERG, FPI, GWRS, LAND, VEGI, WAT, XYL.
 
-### Buy - Write ETFs (1102-002)
+### Buy Write ETFs (1102-002)
 JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST
 
 ### Holding Companies (1102-003)

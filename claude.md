@@ -1,4 +1,3 @@
-
 # Bookkeeping and Accounting Calculations and Integrations
 
 ## Purpose
@@ -170,13 +169,13 @@ on brokerage statement data. Purchases are organized by **basket** and **settlem
 ### Investment Baskets
 Securities are organized into thematic baskets (see `books/baskets.md`):
 - **Water Stocks Basket (1102-001)**: ALCO, AWK, CWCO, CWT, ECL, FERG, FPI, GWRS, LAND, VEGI, WAT, XYL
-- **Buy-Write ETFs (1102-002)**: JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST
+- **Buy Write ETFs (1102-002)**: JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST
 - **Holding Companies (1102-003)**: APO, BRKB, BX, KKR, L, TPG
 - **Balanced ETFs (1102-004)**: FDEM, FDEV, FELC, FESM, FMDE, ONEQ
 
 ### Basket Identification
 Fidelity statements include basket notations in the purchase description:
-- Example: "BASKET:10003" typically corresponds to Buy-Write ETFs (1102-002)
+- Example: "BASKET:10003" typically corresponds to Buy Write ETFs (1102-002)
 - Example: "BASKET:10005" typically corresponds to Holding Companies (1102-003)
 
 ### Journal Entry Structure
@@ -205,6 +204,7 @@ When a security has multiple purchase lines at different prices (fractional + wh
 - Suffix `-PUR` indicates purchase transactions
 - One file per month containing all purchase entries for that month
 
+
 ### Journal Numbering for Purchases
 - **Journal Number Prefix**: `MMW-` (constant)
 - **Journal Number Suffix**: Sequential number starting at 1 for each file
@@ -223,13 +223,15 @@ Identical to dividend CSV structure (same 15 columns in same order):
 5. Notes - Description format (must be quoted):
    - **Same for all lines in a transaction**
    - Format: `"YYYY-MM-DD Purchase - [BASKET NAME] - [SYMBOL1, SYMBOL2, ...]"`
-   - Example: `"2025-02-07 Purchase - Buy-Write ETFs - JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST"`
+   - Example: `"2025-02-07 Purchase - Buy Write ETFs - JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST"`
 6. Journal Type - Always "both"
 7. Currency - Always "USD"
 8. Account - Account name from chart of accounts (exact match required)
 9. Description - Transaction detail format (must be quoted):
-   - For debit lines: `"Purchase - [SYMBOL]"` (e.g., `"Purchase - JEPI"`)
-   - For credit line: `"Cash for [BASKET NAME] - [SYMBOL1, SYMBOL2, ...]"` (e.g., `"Cash for Buy-Write ETFs - JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST"`)
+   - For debit lines: `"Purchase - [SYMBOL] - [TOTAL_QTY] @ ~ $[AVG_PRICE]"` (e.g., `"Purchase - MUST - 48.783 @ ~ $20.50"`)
+     - TOTAL_QTY = Combined quantity (fractional + whole shares)
+     - AVG_PRICE = Approximate average price (rounded to 2 decimals)
+   - For credit line: `"Cash for [BASKET NAME] - [SYMBOL1, SYMBOL2, ...]"` (e.g., `"Cash for Buy Write ETFs - JEPI, QYLD, RYLD, SPYI, TLTW, XYLD, MUST"`)
 10. Contact Name - Leave empty
 11. Debit - Debit amount or empty
 12. Credit - Credit amount or empty
@@ -264,16 +266,16 @@ Identical to dividend CSV structure (same 15 columns in same order):
 Journal Date: 2025-02-07
 Reference: PUR-2025-02-07-10003
 Journal Number: MMW-1
-Notes (for ALL lines): "2025-02-07 Purchase - Buy-Write ETFs - MUST, QYLD, RYLD, XYLD, TLTW, JEPI, SPYI"
+Notes (for ALL lines): "2025-02-07 Purchase - Buy Write ETFs - MUST, QYLD, RYLD, XYLD, TLTW, JEPI, SPYI"
 
-Debit  - Columbia Multi-Sector Municipal Income ETF (MUST)    - "Purchase - MUST" - $1,000.00
-Debit  - Global X NASDAQ 100 Covered Call ETF (QYLD)          - "Purchase - QYLD" - $3,399.99
-Debit  - Global X Russell 2000 Covered Call ETF (RYLD)        - "Purchase - RYLD" - $3,399.99
-Debit  - Global X S&P 500 Covered Call ETF (XYLD)             - "Purchase - XYLD" - $2,199.98
-Debit  - iShares 20+ Year Treasury Bond ETF (TLTW)            - "Purchase - TLTW" - $599.99
-Debit  - JPMorgan Equity Premium Income ETF (JEPI)            - "Purchase - JEPI" - $1,400.00
-Debit  - Neos S&P 500 High Income ETF (SPYI)                  - "Purchase - SPYI" - $7,999.96
-Credit - Cash - Fidelity Cash Management Account              - "Cash for Buy-Write ETFs - MUST, QYLD, RYLD, XYLD, TLTW, JEPI, SPYI" - $19,999.91
+Debit  - Columbia Multi-Sector Municipal Income ETF (MUST)    - "Purchase - MUST - 48.783 @ ~ $20.50" - $1,000.00
+Debit  - Global X NASDAQ 100 Covered Call ETF (QYLD)          - "Purchase - QYLD - 182.649 @ ~ $18.61" - $3,399.99
+Debit  - Global X Russell 2000 Covered Call ETF (RYLD)        - "Purchase - RYLD - 203.623 @ ~ $16.70" - $3,399.99
+Debit  - Global X S&P 500 Covered Call ETF (XYLD)             - "Purchase - XYLD - 51.691 @ ~ $42.56" - $2,199.98
+Debit  - iShares 20+ Year Treasury Bond ETF (TLTW)            - "Purchase - TLTW - 25.407 @ ~ $23.62" - $599.99
+Debit  - JPMorgan Equity Premium Income ETF (JEPI)            - "Purchase - JEPI - 23.744 @ ~ $58.96" - $1,400.00
+Debit  - Neos S&P 500 High Income ETF (SPYI)                  - "Purchase - SPYI - 154.514 @ ~ $51.77" - $7,999.96
+Credit - Cash - Fidelity Cash Management Account              - "Cash for Buy Write ETFs - MUST, QYLD, RYLD, XYLD, TLTW, JEPI, SPYI" - $19,999.91
 ```
 
 ### Example Files and Templates

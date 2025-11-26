@@ -52,7 +52,6 @@ File: `scrapes/holdings/<<<YEAR>>>/MMW-YYYY-MM-HLD.csv`
 6. `ending_value` - Ending market value (3 decimal precision)
 7. `cost_basis` - Total cost basis (3 decimal precision)
 8. `unrealized_gain` - Unrealized gain/loss (3 decimal precision)
-9. `change_from_prior_period` - Calculated change (3 decimal precision)
 
 ### Processing Rules
 
@@ -64,21 +63,16 @@ File: `scrapes/holdings/<<<YEAR>>>/MMW-YYYY-MM-HLD.csv`
 - If PDF shows "unavailable": Leave field empty (null)
 - If PDF shows numeric value: Use that value
 
-**Change Calculation:**
-- If `cost_basis` is empty or "not applicable": empty
-- If `beginning_value` is empty: `change_from_prior_period = ending_value - cost_basis`
-- If `beginning_value` exists: `change_from_prior_period = ending_value - beginning_value`
-
 **Decimal Precision:**
 - All numeric values: 3 decimal places
 - Empty values: Leave blank (do not use "0" or "null" text)
 
 ### Example Output
 ```csv
-symbol,description,quantity,price,beginning_value,ending_value,cost_basis,unrealized_gain,change_from_prior_period
-RYLD,GLOBAL X FDS RUSSELL 2000,203.623,16.050,,3268.140,3399.990,-131.850,-131.850
-VEGI,ISHARES INC MSCI AGRICULTURE,10.676,37.250,408.070,397.680,399.980,-2.300,-10.390
-CWCO,CONSOLIDATED WATER CO LTD,19.186,27.070,502.280,519.360,499.990,19.370,17.080
+symbol,description,quantity,price,beginning_value,ending_value,cost_basis,unrealized_gain
+RYLD,GLOBAL X FDS RUSSELL 2000,203.623,16.050,,3268.140,3399.990,-131.850
+VEGI,ISHARES INC MSCI AGRICULTURE,10.676,37.250,408.070,397.680,399.980,-2.300
+CWCO,CONSOLIDATED WATER CO LTD,19.186,27.070,502.280,519.360,499.990,19.370
 ```
 
 ## "Income" Extraction Rules

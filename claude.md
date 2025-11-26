@@ -31,7 +31,7 @@ into the accounting system.
    - **Income**: Generate `MMW-YYYY-MM-INC.csv` per "Income Extraction Rules"
    - **Securities Activity**: Generate `MMW-YYYY-MM-SEC.csv` per "Securities Bought and Sold Extraction Rules"
 4. Save holdings to `scrapes/holdings/<<<YEAR>>>/` directory
-5. Save income to `scrapes/inc/<<<YEAR>>>/` directory
+5. Save income to `scrapes/income/<<<YEAR>>>/` directory
 6. Save securities activity to `scrapes/activity/<<<YEAR>>>/` directory
 
 ## "Holdings" Extraction Rules
@@ -88,7 +88,7 @@ CWCO,CONSOLIDATED WATER CO LTD,19.186,27.070,502.280,519.360,499.990,19.370,17.0
 - Extract: All dividend, interest, and reinvestment transactions including money market funds (FDRXX, SPAXX, FCASH)
 
 ### Output Format
-File: `scrapes/inc/<<<YEAR>>>/MMW-YYYY-MM-INC.csv`
+File: `scrapes/income/<<<YEAR>>>/MMW-YYYY-MM-INC.csv`
 
 **Columns:**
 1. `settlement_date` - Transaction settlement date (YYYY-MM-DD format)

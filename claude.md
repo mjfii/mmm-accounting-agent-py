@@ -16,23 +16,28 @@ into the accounting system.
   - `unrealized/<<<YEAR>>>/` - Mark-to-market journal entries (future)
 - `scrapes/` - Extracted data files (non-journal entries)
   - `holdings/<<<YEAR>>>/` - Holdings/positions snapshots
-  - `inc/<<<YEAR>>>/` - Dividends and interest income
+  - `income/<<<YEAR>>>/` - Dividends and interest income
   - `activity/<<<YEAR>>>/` - Securities bought and sold transactions
+  - `summary/<<<YEAR>>>/` - Account summary snapshots
 - `examples/` - Template files showing correct format
+  - `scrapes/` - Example extracted data files (HLD, INC, ACT, SUM)
+  - `entries/` - Example journal entry files (DIV, PUR, SAL, UNR)
 
 ## Workflow
 
-**When user says "process [month/date] statement"**, automatically extract holdings, income, and securities activity:
+**When user says "process [month/date] statement"**, automatically extract holdings, income, securities activity, and account summary:
 
 1. User specifies which statement PDF to process (e.g., "process March 2025 statement")
 2. Extract data using AI/LLM-based PDF reading
 3. Process **ALL** data types per the rules below:
    - **Holdings**: Generate `MMW-YYYY-MM-HLD.csv` per "Holdings Extraction Rules"
    - **Income**: Generate `MMW-YYYY-MM-INC.csv` per "Income Extraction Rules"
-   - **Securities Activity**: Generate `MMW-YYYY-MM-SEC.csv` per "Securities Bought and Sold Extraction Rules"
+   - **Securities Activity**: Generate `MMW-YYYY-MM-ACT.csv` per "Securities Bought and Sold Extraction Rules"
+   - **Account Summary**: Generate `MMW-YYYY-MM-SUM.csv` per "Account Summary Extraction Rules"
 4. Save holdings to `scrapes/holdings/<<<YEAR>>>/` directory
 5. Save income to `scrapes/income/<<<YEAR>>>/` directory
 6. Save securities activity to `scrapes/activity/<<<YEAR>>>/` directory
+7. Save account summary to `scrapes/summary/<<<YEAR>>>/` directory
 
 ## "Holdings" Extraction Rules
 
@@ -139,7 +144,7 @@ settlement_date,security_name,symbol,cusip,description,quantity,price,amount
 - Extract: All buy and sell transactions for stocks, ETFs, mutual funds, and other securities
 
 ### Output Format
-File: `scrapes/activity/<<<YEAR>>>/MMW-YYYY-MM-SEC.csv`
+File: `scrapes/activity/<<<YEAR>>>/MMW-YYYY-MM-ACT.csv`
 
 **Columns:**
 1. `settlement_date` - Transaction settlement date (YYYY-MM-DD format)
@@ -150,6 +155,7 @@ File: `scrapes/activity/<<<YEAR>>>/MMW-YYYY-MM-SEC.csv`
 6. `price` - Price per unit (3 decimal precision)
 7. `amount` - Total transaction value (3 decimal precision)
 8. `transaction_cost` - Commission/fees charged (3 decimal precision, empty if none)
+9. `basket` - Basket identifier if transaction is part of a basket trade (empty if not applicable)
 
 ### Processing Rules
 
@@ -165,6 +171,14 @@ File: `scrapes/activity/<<<YEAR>>>/MMW-YYYY-MM-SEC.csv`
 - Preserve exact action text from PDF (e.g., "You Bought", "You Sold")
 - Do not abbreviate or modify the action description
 
+**Basket Handling:**
+- If the security name contains "BASKET:" followed by a number: Extract the basket identifier
+- Format: Extract only the numeric identifier after "BASKET:" (e.g., "BASKET:10003" → "10003")
+- Example: "GLOBAL X FDS NASDAQ 100 COVER BASKET:10003" → basket="10003"
+- Remove the basket reference from the security_name field
+- Example: security_name="GLOBAL X FDS NASDAQ 100 COVER" (without "BASKET:10003")
+- Empty values: Leave blank (do not use "0" or "null" text)
+
 **Decimal Precision:**
 - All numeric values: 3 decimal places
 - Empty values: Leave blank (do not use "0" or "null" text)
@@ -175,10 +189,64 @@ File: `scrapes/activity/<<<YEAR>>>/MMW-YYYY-MM-SEC.csv`
 
 ### Example Output
 ```csv
-settlement_date,action,symbol,security_name,quantity,price,amount,transaction_cost
-2025-02-07,You Bought,MUST,COLUMBIA MULTI-SECTOR MUNICIPAL INCOME ETF,48.783,20.500,1000.000,
-2025-02-07,You Bought,QYLD,GLOBAL X FDS NASDAQ 100 COVER,182.649,18.610,3399.990,
-2025-02-07,You Bought,RYLD,GLOBAL X FDS RUSSELL 2000,203.623,16.700,3399.990,
-2025-02-28,You Bought,APO,APOLLO GLOBAL MANAGEMENT INC,5.860,150.160,879.920,
-2025-02-28,You Sold,VEGI,ISHARES INC MSCI AGRICULTURE,10.676,37.250,397.680,
+settlement_date,action,symbol,security_name,quantity,price,amount,transaction_cost,basket
+2025-02-07,You Bought,MUST,COLUMBIA ETF TR I MULTI SEC MUNI,48.000,20.500,984.000,,10003
+2025-02-07,You Bought,QYLD,GLOBAL X FDS NASDAQ 100 COVER,182.000,18.615,3387.910,,10003
+2025-02-07,You Bought,RYLD,GLOBAL X FDS RUSSELL 2000,203.000,16.698,3389.590,,10003
+2025-02-28,You Bought,APO,APOLLO GLOBAL MGMT INC COM,5.000,150.169,750.840,,10005
+2025-02-28,You Bought,BRKB,BERKSHIRE HATHAWAY INC COM USD0.0033 CLASS B,9.000,503.280,4529.520,,10005
+2025-02-28,You Sold,VEGI,ISHARES INC MSCI AGRICULTURE,10.676,37.250,397.680,,
+```
+
+## "Account Summary" Extraction Rules
+
+### Input
+- Source: "Account Summary" section of Fidelity PDF statement (typically page 2)
+- Extract: Account value summary and activity breakdown for both "This Period" and "Year-to-Date"
+
+### Output Format
+File: `scrapes/summary/<<<YEAR>>>/MMW-YYYY-MM-SUM.csv`
+
+**Columns:**
+1. `period_start` - Statement period start date (YYYY-MM-DD format)
+2. `period_end` - Statement period end date (YYYY-MM-DD format)
+3. `beginning_value_period` - Beginning account value for this period (3 decimal precision)
+4. `additions_period` - Additions for this period (3 decimal precision)
+5. `subtractions_period` - Subtractions for this period (3 decimal precision)
+6. `change_investment_value_period` - Change in investment value for this period (3 decimal precision)
+7. `ending_value_period` - Ending account value for this period (3 decimal precision)
+8. `beginning_value_ytd` - Beginning account value year-to-date (3 decimal precision)
+9. `additions_ytd` - Additions year-to-date (3 decimal precision)
+10. `subtractions_ytd` - Subtractions year-to-date (3 decimal precision)
+11. `change_investment_value_ytd` - Change in investment value year-to-date (3 decimal precision)
+12. `ending_value_ytd` - Ending account value year-to-date (3 decimal precision)
+13. `income_period` - Total income for this period from Income Summary (3 decimal precision)
+14. `income_ytd` - Total income year-to-date from Income Summary (3 decimal precision)
+
+### Processing Rules
+
+**Date Format:**
+- Extract period dates from statement header (e.g., "February 1, 2025 - February 28, 2025")
+- Convert to YYYY-MM-DD format
+- period_start: "2025-02-01"
+- period_end: "2025-02-28"
+
+**Value Extraction:**
+- Extract all values from "Account Summary" table on page 2
+- "This Period" column → *_period fields
+- "Year-to-Date" column → *_ytd fields
+- Extract income totals from "Income Summary" section (Taxable dividends total)
+
+**Decimal Precision:**
+- All numeric values: 3 decimal places
+- Negative values: Preserve the negative sign (e.g., -16000.000)
+
+**Single Row Output:**
+- This CSV contains only ONE row per statement (plus header)
+- All summary data is captured in a single line
+
+### Example Output
+```csv
+period_start,period_end,beginning_value_period,additions_period,subtractions_period,change_investment_value_period,ending_value_period,beginning_value_ytd,additions_ytd,subtractions_ytd,change_investment_value_ytd,ending_value_ytd,income_period,income_ytd
+2025-02-01,2025-02-28,6119.670,50000.000,-16000.000,-48.540,40071.130,5873.110,50000.000,-16000.000,198.020,40071.130,139.310,216.470
 ```

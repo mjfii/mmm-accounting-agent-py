@@ -488,6 +488,21 @@ class Statement:
                 basket_totals[basket_id] += holding.change_in_value
                 basket_info[basket_id] = (name, fmv_acct, unr_acct)
 
+        # Adjust for purchases and sales during the period
+        # Only adjust for holdings that have a beginning_value (existing positions).
+        # New positions (no beginning_value) use ending - cost_basis which already
+        # excludes purchase amounts, so no adjustment needed for those.
+        holdings_with_beginning = {h.symbol for h in self.holdings if h.beginning_value is not None and h.beginning_value > 0}
+
+        if self.activity is not None:
+            for txn in self.activity:
+                if txn.symbol in basket_config and txn.symbol in holdings_with_beginning:
+                    basket_id = basket_config[txn.symbol][0]
+                    if 'Bought' in txn.action:
+                        basket_totals[basket_id] -= txn.amount
+                    elif 'Sold' in txn.action:
+                        basket_totals[basket_id] += txn.amount
+
         if not basket_totals:
             return None
 

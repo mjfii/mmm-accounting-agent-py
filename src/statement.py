@@ -283,7 +283,7 @@ class Statement:
                     'Notes': notes,
                     'Journal Type': 'both',
                     'Currency': 'USD',
-                    'Account': 'Income - Ordinary Dividend',
+                    'Account': 'Income - Ordinary Dividends',
                     'Description': f"Income - {symbols}",
                     'Contact Name': '',
                     'Debit': '',

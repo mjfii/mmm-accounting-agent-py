@@ -1,0 +1,11 @@
+Journal Date,Reference Number,Journal Number Prefix,Journal Number Suffix,Notes,Journal Type,Currency,Account,Description,Contact Name,Debit,Credit,Project Name,Status,Exchange Rate
+2025-02-06,DIV-2025-02-06,MMW-,10001,2025-02-06 Dividends - FERG,both,USD,Cash - Fidelity Cash Management Account,Dividend - FERG,,1.22,,,published,
+2025-02-06,DIV-2025-02-06,MMW-,10001,2025-02-06 Dividends - FERG,both,USD,Income - Ordinary Dividends,Income - FERG,,,1.22,,published,
+2025-02-21,DIV-2025-02-21,MMW-,10002,2025-02-21 Dividends - CWT,both,USD,Cash - Fidelity Cash Management Account,Dividend - CWT,,1.96,,,published,
+2025-02-21,DIV-2025-02-21,MMW-,10002,2025-02-21 Dividends - CWT,both,USD,Cash - Fidelity Cash Management Account,Dividend - CWT,,0.26,,,published,
+2025-02-21,DIV-2025-02-21,MMW-,10002,2025-02-21 Dividends - CWT,both,USD,Income - Ordinary Dividends,Income - CWT,,,2.22,,published,
+2025-02-28,DIV-2025-02-28,MMW-,10003,"2025-02-28 Dividends - FDRXX, GWRS, LAND, SPYI",both,USD,Cash - Fidelity Cash Management Account,Dividend - FDRXX,,53.63,,,published,
+2025-02-28,DIV-2025-02-28,MMW-,10003,"2025-02-28 Dividends - FDRXX, GWRS, LAND, SPYI",both,USD,Cash - Fidelity Cash Management Account,Dividend - LAND,,2.60,,,published,
+2025-02-28,DIV-2025-02-28,MMW-,10003,"2025-02-28 Dividends - FDRXX, GWRS, LAND, SPYI",both,USD,Cash - Fidelity Cash Management Account,Dividend - GWRS,,0.19,,,published,
+2025-02-28,DIV-2025-02-28,MMW-,10003,"2025-02-28 Dividends - FDRXX, GWRS, LAND, SPYI",both,USD,Cash - Fidelity Cash Management Account,Dividend - SPYI,,79.45,,,published,
+2025-02-28,DIV-2025-02-28,MMW-,10003,"2025-02-28 Dividends - FDRXX, GWRS, LAND, SPYI",both,USD,Income - Ordinary Dividends,"Income - FDRXX, GWRS, LAND, SPYI",,,135.87,,published,

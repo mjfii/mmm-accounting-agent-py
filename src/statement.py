@@ -178,83 +178,59 @@ class Statement:
 
         return symbol_map
 
-    def write_entries(self, output_path: Optional[Path] = None) -> Path:
-        """
-        Generate bookkeeping journal entries CSV file.
+    def _get_entry_path(self, entry_type: str) -> Path:
+        """Get the path for an entry file."""
+        entry_dirs = {
+            'DIV': 'dividends',
+            'PUR': 'purchases',
+            'SAL': 'sales',
+            'UNR': 'unrealized',
+        }
+        entry_dir = entry_dirs.get(entry_type, entry_type.lower())
+        return self.base_path / 'entries' / entry_dir / str(self.year) / f"{self.file_prefix}-{entry_type}.csv"
 
-        Creates entries for dividends and purchases during the period.
-        - Dividends: Debit Cash, Credit Income (grouped by date)
-        - Purchases: Debit Security accounts, Credit Cash (grouped by date/basket)
+    def _get_fieldnames(self) -> list:
+        """Get the standard fieldnames for journal entries."""
+        return [
+            'Journal Date', 'Reference Number', 'Journal Number Prefix',
+            'Journal Number Suffix', 'Notes', 'Journal Type', 'Currency',
+            'Account', 'Description', 'Contact Name', 'Debit', 'Credit',
+            'Project Name', 'Status', 'Exchange Rate'
+        ]
 
-        Args:
-            output_path: Optional custom path for output file.
-                        If None, uses base_path/entries/MMW-YYYY-MM-ENT.csv
-
-        Returns:
-            Path to the created CSV file
-
-        Raises:
-            ValueError: If income data is not loaded
-        """
+    def write_dividend_entries(self) -> Optional[Path]:
+        """Write dividend entries to DIV file. Journal suffix starts at 10001."""
         if self.income is None:
-            raise ValueError("Income data must be loaded before writing entries")
+            return None
 
-        # Determine output path
-        if output_path is None:
-            entries_dir = self.base_path / 'entries'
-            entries_dir.mkdir(parents=True, exist_ok=True)
-            output_path = entries_dir / f"{self.file_prefix}-ENT.csv"
-        else:
-            output_path = Path(output_path)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Load chart of accounts for symbol mapping
-        symbol_map = self._load_chart_of_accounts()
+        from collections import defaultdict
+        import csv
 
         # Group non-reinvestment income transactions by date
-        from collections import defaultdict
         income_by_date = defaultdict(list)
-
         for txn in self.income:
             if not txn.is_reinvestment:
                 income_by_date[txn.settlement_date].append(txn)
 
-        # Group purchase transactions by date and basket (exclude money market funds)
-        money_market_symbols = {'FDRXX', 'SPAXX', 'FCASH'}
-        purchases_by_date_basket = defaultdict(list)
-        if self.activity is not None:
-            for txn in self.activity:
-                if 'Bought' in txn.action and txn.symbol not in money_market_symbols:
-                    key = (txn.settlement_date, txn.basket or '')
-                    purchases_by_date_basket[key].append(txn)
+        if not income_by_date:
+            return None
 
-        # Generate entries
-        import csv
+        output_path = self._get_entry_path('DIV')
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
         with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            fieldnames = [
-                'Journal Date', 'Reference Number', 'Journal Number Prefix',
-                'Journal Number Suffix', 'Notes', 'Journal Type', 'Currency',
-                'Account', 'Description', 'Contact Name', 'Debit', 'Credit',
-                'Project Name', 'Status', 'Exchange Rate'
-            ]
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer = csv.DictWriter(f, fieldnames=self._get_fieldnames())
             writer.writeheader()
 
             journal_number = 10001
 
-            # Write dividend entries
             for settlement_date in sorted(income_by_date.keys()):
                 txns = income_by_date[settlement_date]
-
-                # Create reference number and notes
                 ref_number = f"DIV-{settlement_date}"
                 symbols = ', '.join(sorted(set(t.symbol for t in txns)))
                 notes = f"{settlement_date} Dividends - {symbols}"
-
-                # Calculate total for this date
                 total_amount = sum(t.amount for t in txns)
 
-                # Write debit entries (one per transaction - Cash account)
                 for txn in txns:
                     writer.writerow({
                         'Journal Date': str(settlement_date),
@@ -274,7 +250,6 @@ class Statement:
                         'Exchange Rate': ''
                     })
 
-                # Write single credit entry (Income account)
                 writer.writerow({
                     'Journal Date': str(settlement_date),
                     'Reference Number': ref_number,
@@ -295,27 +270,46 @@ class Statement:
 
                 journal_number += 1
 
-            # Write purchase entries
+        return output_path
+
+    def write_purchase_entries(self) -> Optional[Path]:
+        """Write purchase entries to PUR file. Journal suffix starts at 20001."""
+        if self.activity is None:
+            return None
+
+        from collections import defaultdict
+        import csv
+
+        money_market_symbols = {'FDRXX', 'SPAXX', 'FCASH'}
+        purchases_by_date_basket = defaultdict(list)
+
+        for txn in self.activity:
+            if 'Bought' in txn.action and txn.symbol not in money_market_symbols:
+                key = (txn.settlement_date, txn.basket or '')
+                purchases_by_date_basket[key].append(txn)
+
+        if not purchases_by_date_basket:
+            return None
+
+        output_path = self._get_entry_path('PUR')
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        symbol_map = self._load_chart_of_accounts()
+
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=self._get_fieldnames())
+            writer.writeheader()
+
             journal_number = 20001
 
             for (settlement_date, basket), txns in sorted(purchases_by_date_basket.items()):
-                # Create reference number
                 basket_suffix = f"-{basket}" if basket else ""
                 ref_number = f"PUR-{settlement_date}{basket_suffix}"
-
-                # Create notes with symbols
                 symbols = ', '.join(sorted(set(t.symbol for t in txns)))
                 notes = f"{settlement_date} Purchase - {symbols}"
-
-                # Calculate total amount
                 total_amount = sum(t.amount for t in txns)
 
-                # Write debit entries (one per security - Asset accounts)
                 for txn in txns:
-                    # Get full account name from chart of accounts
                     account_name = symbol_map.get(txn.symbol, txn.symbol)
-
-                    # Create description with quantity and price
                     if txn.quantity and txn.price:
                         description = f"Purchase - {txn.symbol} - {txn.quantity:.3f} @ ~ ${txn.price:.2f}"
                     else:
@@ -339,7 +333,6 @@ class Statement:
                         'Exchange Rate': ''
                     })
 
-                # Write single credit entry (Cash account)
                 writer.writerow({
                     'Journal Date': str(settlement_date),
                     'Reference Number': ref_number,
@@ -359,6 +352,281 @@ class Statement:
                 })
 
                 journal_number += 1
+
+        return output_path
+
+    def write_sale_entries(self) -> Optional[Path]:
+        """Write sale entries to SAL file. Journal suffix starts at 30001."""
+        if self.activity is None:
+            return None
+
+        from collections import defaultdict
+        import csv
+
+        money_market_symbols = {'FDRXX', 'SPAXX', 'FCASH'}
+        sales_by_date_basket = defaultdict(list)
+
+        for txn in self.activity:
+            if 'Sold' in txn.action and txn.symbol not in money_market_symbols:
+                key = (txn.settlement_date, txn.basket or '')
+                sales_by_date_basket[key].append(txn)
+
+        if not sales_by_date_basket:
+            return None
+
+        output_path = self._get_entry_path('SAL')
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        symbol_map = self._load_chart_of_accounts()
+
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=self._get_fieldnames())
+            writer.writeheader()
+
+            journal_number = 30001
+
+            for (settlement_date, basket), txns in sorted(sales_by_date_basket.items()):
+                basket_suffix = f"-{basket}" if basket else ""
+                ref_number = f"SAL-{settlement_date}{basket_suffix}"
+                symbols = ', '.join(sorted(set(t.symbol for t in txns)))
+                notes = f"{settlement_date} Sale - {symbols}"
+                total_amount = sum(t.amount for t in txns)
+
+                # Credit security accounts (reducing asset)
+                for txn in txns:
+                    account_name = symbol_map.get(txn.symbol, txn.symbol)
+                    if txn.quantity and txn.price:
+                        description = f"Sale - {txn.symbol} - {txn.quantity:.3f} @ ~ ${txn.price:.2f}"
+                    else:
+                        description = f"Sale - {txn.symbol}"
+
+                    writer.writerow({
+                        'Journal Date': str(settlement_date),
+                        'Reference Number': ref_number,
+                        'Journal Number Prefix': 'MMW-',
+                        'Journal Number Suffix': str(journal_number),
+                        'Notes': notes,
+                        'Journal Type': 'both',
+                        'Currency': 'USD',
+                        'Account': account_name,
+                        'Description': description,
+                        'Contact Name': '',
+                        'Debit': '',
+                        'Credit': f"{txn.amount:.2f}",
+                        'Project Name': '',
+                        'Status': 'published',
+                        'Exchange Rate': ''
+                    })
+
+                # Debit cash account
+                writer.writerow({
+                    'Journal Date': str(settlement_date),
+                    'Reference Number': ref_number,
+                    'Journal Number Prefix': 'MMW-',
+                    'Journal Number Suffix': str(journal_number),
+                    'Notes': notes,
+                    'Journal Type': 'both',
+                    'Currency': 'USD',
+                    'Account': 'Cash - Fidelity Cash Management Account',
+                    'Description': f"Cash from {symbols}",
+                    'Contact Name': '',
+                    'Debit': f"{total_amount:.2f}",
+                    'Credit': '',
+                    'Project Name': '',
+                    'Status': 'published',
+                    'Exchange Rate': ''
+                })
+
+                journal_number += 1
+
+        return output_path
+
+    def write_unrealized_entries(self) -> Optional[Path]:
+        """Write unrealized (mark-to-market) entries to UNR file. Journal suffix starts at 40001."""
+        if self.holdings is None or self.summary is None:
+            return None
+
+        from collections import defaultdict
+        import csv
+
+        # Basket configuration: symbol -> (basket_id, basket_name, fmv_account, unrealized_account)
+        basket_config = {
+            'CWCO': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'ALCO': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'AWK': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'CWT': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'ECL': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'FPI': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'FERG': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'LAND': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'GWRS': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'VEGI': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'WAT': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'XYL': ('10001', 'Water Investments', 'Trading Securities - Water Basket - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Water Investments'),
+            'JEPI': ('10003', 'Buy Write ETFs', 'Trading Securities - Buy-Write ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Buy Write ETFs'),
+            'QYLD': ('10003', 'Buy Write ETFs', 'Trading Securities - Buy-Write ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Buy Write ETFs'),
+            'SPYI': ('10003', 'Buy Write ETFs', 'Trading Securities - Buy-Write ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Buy Write ETFs'),
+            'TLTW': ('10003', 'Buy Write ETFs', 'Trading Securities - Buy-Write ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Buy Write ETFs'),
+            'XYLD': ('10003', 'Buy Write ETFs', 'Trading Securities - Buy-Write ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Buy Write ETFs'),
+            'RYLD': ('10003', 'Buy Write ETFs', 'Trading Securities - Buy-Write ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Buy Write ETFs'),
+            'MUST': ('10003', 'Buy Write ETFs', 'Trading Securities - Buy-Write ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Buy Write ETFs'),
+            'APO': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
+            'BRKB': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
+            'BX': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
+            'KKR': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
+            'L': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
+            'TPG': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
+        }
+
+        # Calculate change_in_value by basket
+        basket_totals = defaultdict(float)
+        basket_info = {}
+        for holding in self.holdings:
+            if holding.is_money_market:
+                continue
+            if holding.symbol in basket_config:
+                basket_id, name, fmv_acct, unr_acct = basket_config[holding.symbol]
+                basket_totals[basket_id] += holding.change_in_value
+                basket_info[basket_id] = (name, fmv_acct, unr_acct)
+
+        if not basket_totals:
+            return None
+
+        output_path = self._get_entry_path('UNR')
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        period_end = self.summary.period_end
+
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=self._get_fieldnames())
+            writer.writeheader()
+
+            journal_number = 40001
+
+            for basket_id in sorted(basket_totals.keys()):
+                change = basket_totals[basket_id]
+                if abs(change) < 0.01:
+                    continue
+
+                name, fmv_acct, unr_acct = basket_info[basket_id]
+                ref_number = f"UNR-{period_end}-{basket_id}"
+                notes = f"{period_end} Mark-to-Market - {name}"
+                amount = abs(round(change, 2))
+
+                if change > 0:
+                    # Gain: Debit FMV Adjustment, Credit Unrealized Gain
+                    writer.writerow({
+                        'Journal Date': str(period_end),
+                        'Reference Number': ref_number,
+                        'Journal Number Prefix': 'MMW-',
+                        'Journal Number Suffix': str(journal_number),
+                        'Notes': notes,
+                        'Journal Type': 'both',
+                        'Currency': 'USD',
+                        'Account': fmv_acct,
+                        'Description': f"FMV Adjustment - {name}",
+                        'Contact Name': '',
+                        'Debit': f"{amount:.2f}",
+                        'Credit': '',
+                        'Project Name': '',
+                        'Status': 'published',
+                        'Exchange Rate': ''
+                    })
+                    writer.writerow({
+                        'Journal Date': str(period_end),
+                        'Reference Number': ref_number,
+                        'Journal Number Prefix': 'MMW-',
+                        'Journal Number Suffix': str(journal_number),
+                        'Notes': notes,
+                        'Journal Type': 'both',
+                        'Currency': 'USD',
+                        'Account': unr_acct,
+                        'Description': f"Unrealized Gain - {name}",
+                        'Contact Name': '',
+                        'Debit': '',
+                        'Credit': f"{amount:.2f}",
+                        'Project Name': '',
+                        'Status': 'published',
+                        'Exchange Rate': ''
+                    })
+                else:
+                    # Loss: Debit Unrealized Gain, Credit FMV Adjustment
+                    writer.writerow({
+                        'Journal Date': str(period_end),
+                        'Reference Number': ref_number,
+                        'Journal Number Prefix': 'MMW-',
+                        'Journal Number Suffix': str(journal_number),
+                        'Notes': notes,
+                        'Journal Type': 'both',
+                        'Currency': 'USD',
+                        'Account': unr_acct,
+                        'Description': f"Unrealized Loss - {name}",
+                        'Contact Name': '',
+                        'Debit': f"{amount:.2f}",
+                        'Credit': '',
+                        'Project Name': '',
+                        'Status': 'published',
+                        'Exchange Rate': ''
+                    })
+                    writer.writerow({
+                        'Journal Date': str(period_end),
+                        'Reference Number': ref_number,
+                        'Journal Number Prefix': 'MMW-',
+                        'Journal Number Suffix': str(journal_number),
+                        'Notes': notes,
+                        'Journal Type': 'both',
+                        'Currency': 'USD',
+                        'Account': fmv_acct,
+                        'Description': f"FMV Adjustment - {name}",
+                        'Contact Name': '',
+                        'Debit': '',
+                        'Credit': f"{amount:.2f}",
+                        'Project Name': '',
+                        'Status': 'published',
+                        'Exchange Rate': ''
+                    })
+
+                journal_number += 1
+
+        return output_path
+
+    def write_entries(self) -> Path:
+        """
+        Generate all entry files and combine into ENT file.
+
+        Writes:
+        - DIV file (dividends, journal suffix 10001+)
+        - PUR file (purchases, journal suffix 20001+)
+        - SAL file (sales, journal suffix 30001+)
+        - UNR file (unrealized, journal suffix 40001+)
+        - ENT file (union of all above)
+
+        Returns:
+            Path to the ENT file
+        """
+        import csv
+
+        # Write individual entry files
+        self.write_dividend_entries()
+        self.write_purchase_entries()
+        self.write_sale_entries()
+        self.write_unrealized_entries()
+
+        # Combine all entry files into ENT
+        output_path = self.base_path / 'entries' / f"{self.file_prefix}-ENT.csv"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        entry_types = ['DIV', 'PUR', 'SAL', 'UNR']
+
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=self._get_fieldnames())
+            writer.writeheader()
+
+            for entry_type in entry_types:
+                entry_path = self._get_entry_path(entry_type)
+                if entry_path.exists():
+                    with open(entry_path, 'r', encoding='utf-8') as entry_file:
+                        reader = csv.DictReader(entry_file)
+                        for row in reader:
+                            writer.writerow(row)
 
         return output_path
 

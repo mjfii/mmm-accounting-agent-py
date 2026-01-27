@@ -38,6 +38,67 @@ into the accounting system.
 5. Save income to `scrapes/income/<<<YEAR>>>/` directory
 6. Save securities activity to `scrapes/activity/<<<YEAR>>>/` directory
 7. Save account summary to `scrapes/summary/<<<YEAR>>>/` directory
+8. Update `src/main.py` to set the correct year and month
+9. Run `python src/main.py` to generate journal entries
+
+## Basket Configuration
+
+Securities are grouped into baskets for portfolio tracking:
+
+| Basket ID | Name | Securities |
+|-----------|------|------------|
+| 10001 | Water Investments | AWK, CWT, CWCO, GWRS, XYL, VEGI |
+| 10003 | Buy Write ETFs | QYLD, RYLD, XYLD, JEPI, SPYI, TLTW, MUST |
+| 10005 | Holding Companies | APO, BX, KKR, TPG, BRKB, L |
+
+Additional securities not in baskets: ALCO, ECL, FERG, WAT, FPI, LAND, FDRXX, SPAXX
+
+## Journal Entry Suffix Ranges
+
+Journal entries use the following suffix ranges by type:
+
+| Entry Type | Suffix Range | Example |
+|------------|--------------|---------|
+| Dividends (DIV) | 10001+ | MMW-10001 |
+| Purchases (PUR) | 20001+ | MMW-20001 |
+| Sales (SAL) | 30001+ | MMW-30001 |
+| Unrealized (UNR) | 40001+ | MMW-40001 |
+
+## Validation Formula
+
+The statement validation checks that extracted data reconciles:
+
+**For months WITHOUT securities activity (purchases/sales):**
+```
+Change in Investment Value = Income + Holdings Change
+```
+
+**For months WITH securities activity:**
+```
+Change in Investment Value = Income + Holdings Change - Purchases + Sales
+```
+
+Where:
+- **Income**: Sum of all dividend amounts from income file
+- **Holdings Change**: Sum of (ending_value - beginning_value) for all positions
+- **Purchases**: Sum of all "You Bought" transaction amounts from activity file
+- **Sales**: Sum of all "You Sold" transaction amounts from activity file
+
+**Note:** When securities are purchased, the holdings change includes both market gains/losses AND the value of newly purchased shares. The purchases must be subtracted to isolate the actual investment performance.
+
+## Unrealized Gain/Loss Calculation
+
+Mark-to-market entries use the following logic for each holding:
+
+```
+if beginning_value is available:
+    change_in_value = ending_value - beginning_value
+else:
+    change_in_value = ending_value - cost_basis
+```
+
+- Money market funds (FDRXX, SPAXX, FCASH) are excluded from unrealized calculations
+- Unrealized entries are grouped by basket and recorded on the last day of the period
 
 ## "Holdings" Extraction Rules
 

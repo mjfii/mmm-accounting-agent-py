@@ -14,8 +14,8 @@ def main():
     # Get the project root directory
     project_root = Path(__file__).parent.parent
 
-    # Load data for May 2025 from scrapes directory
-    statement = Statement(year=2025, month=5, base_path=project_root, auto_load=True)
+    # Load data for June 2025 from scrapes directory
+    statement = Statement(year=2025, month=6, base_path=project_root, auto_load=True)
 
     # Display statement information
     print("=" * 100)

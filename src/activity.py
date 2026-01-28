@@ -20,6 +20,7 @@ class ActivityTransaction:
     amount: float
     transaction_cost: Optional[float]
     basket: Optional[str]
+    cost_basis: Optional[float] = None
 
     @classmethod
     def from_csv_row(cls, row: dict) -> 'ActivityTransaction':
@@ -33,7 +34,8 @@ class ActivityTransaction:
             price=float(row['price']) if row['price'] else None,
             amount=float(row['amount']),
             transaction_cost=float(row['transaction_cost']) if row['transaction_cost'] else None,
-            basket=row['basket'] if row['basket'] else None
+            basket=row['basket'] if row['basket'] else None,
+            cost_basis=float(row['cost_basis']) if row.get('cost_basis') else None
         )
 
 

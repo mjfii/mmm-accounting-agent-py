@@ -366,6 +366,14 @@ class Statement:
         money_market_symbols = {'FDRXX', 'SPAXX', 'FCASH'}
         sales_by_date_basket = defaultdict(list)
 
+        # Basket config for realized gains/losses income account
+        basket_income_accounts = {
+            '10001': ('Water Investments', 'Income - Equity Securities Baskets - Water Investments'),
+            '10003': ('Buy Write ETFs', 'Income - Equity Securities Baskets - Buy Write ETFs'),
+            '10005': ('Holding Companies', 'Income - Equity Securities Baskets - Holding Companies'),
+            '10007': ('Balanced ETFs', 'Income - Equity Securities Baskets - Balanced ETFs'),
+        }
+
         for txn in self.activity:
             if 'Sold' in txn.action and txn.symbol not in money_market_symbols:
                 key = (txn.settlement_date, txn.basket or '')
@@ -386,18 +394,102 @@ class Statement:
 
             for (settlement_date, basket), txns in sorted(sales_by_date_basket.items()):
                 basket_suffix = f"-{basket}" if basket else ""
+                basket_name, income_account = basket_income_accounts.get(basket, ('', 'Income - Equity Securities'))
+
                 ref_number = f"SAL-{settlement_date}{basket_suffix}"
                 symbols = ', '.join(sorted(set(t.symbol for t in txns)))
-                notes = f"{settlement_date} Sale - {symbols}"
-                total_amount = sum(t.amount for t in txns)
 
-                # Credit security accounts (reducing asset)
+                if basket_name:
+                    notes = f"{settlement_date} Sale - {basket_name} - {symbols}"
+                else:
+                    notes = f"{settlement_date} Sale - {symbols}"
+
+                total_proceeds = sum(t.amount for t in txns)
+                total_cost_basis = sum(t.cost_basis for t in txns if t.cost_basis)
+
+                # Group transactions by symbol for consolidated entries
+                symbol_totals = defaultdict(lambda: {'proceeds': 0.0, 'cost_basis': 0.0, 'quantity': 0.0})
                 for txn in txns:
-                    account_name = symbol_map.get(txn.symbol, txn.symbol)
-                    if txn.quantity and txn.price:
-                        description = f"Sale - {txn.symbol} - {txn.quantity:.3f} @ ~ ${txn.price:.2f}"
-                    else:
-                        description = f"Sale - {txn.symbol}"
+                    symbol_totals[txn.symbol]['proceeds'] += txn.amount
+                    symbol_totals[txn.symbol]['cost_basis'] += txn.cost_basis if txn.cost_basis else txn.amount
+                    symbol_totals[txn.symbol]['quantity'] += txn.quantity if txn.quantity else 0
+
+                # 1. Debit cash account for total proceeds
+                writer.writerow({
+                    'Journal Date': str(settlement_date),
+                    'Reference Number': ref_number,
+                    'Journal Number Prefix': 'MMW-',
+                    'Journal Number Suffix': str(journal_number),
+                    'Notes': notes,
+                    'Journal Type': 'both',
+                    'Currency': 'USD',
+                    'Account': 'Cash - Fidelity Cash Management Account',
+                    'Description': f"Proceeds from {basket_name + ' - ' if basket_name else ''}{symbols}",
+                    'Contact Name': '',
+                    'Debit': f"{total_proceeds:.2f}",
+                    'Credit': '',
+                    'Project Name': '',
+                    'Status': 'published',
+                    'Exchange Rate': ''
+                })
+
+                # 2. Record realized gains/losses per symbol
+                for symbol in sorted(symbol_totals.keys()):
+                    totals = symbol_totals[symbol]
+                    proceeds = totals['proceeds']
+                    cost_basis = totals['cost_basis']
+                    gain_loss = proceeds - cost_basis
+
+                    if abs(gain_loss) >= 0.01:  # Only record if material
+                        if gain_loss < 0:
+                            # Realized loss - debit income account
+                            writer.writerow({
+                                'Journal Date': str(settlement_date),
+                                'Reference Number': ref_number,
+                                'Journal Number Prefix': 'MMW-',
+                                'Journal Number Suffix': str(journal_number),
+                                'Notes': notes,
+                                'Journal Type': 'both',
+                                'Currency': 'USD',
+                                'Account': income_account,
+                                'Description': f"Realized Loss - {symbol}",
+                                'Contact Name': '',
+                                'Debit': f"{abs(gain_loss):.2f}",
+                                'Credit': '',
+                                'Project Name': '',
+                                'Status': 'published',
+                                'Exchange Rate': ''
+                            })
+                        else:
+                            # Realized gain - credit income account
+                            writer.writerow({
+                                'Journal Date': str(settlement_date),
+                                'Reference Number': ref_number,
+                                'Journal Number Prefix': 'MMW-',
+                                'Journal Number Suffix': str(journal_number),
+                                'Notes': notes,
+                                'Journal Type': 'both',
+                                'Currency': 'USD',
+                                'Account': income_account,
+                                'Description': f"Realized Gain - {symbol}",
+                                'Contact Name': '',
+                                'Debit': '',
+                                'Credit': f"{gain_loss:.2f}",
+                                'Project Name': '',
+                                'Status': 'published',
+                                'Exchange Rate': ''
+                            })
+
+                # 3. Credit security accounts with cost basis (reducing asset)
+                for symbol in sorted(symbol_totals.keys()):
+                    totals = symbol_totals[symbol]
+                    cost_basis = totals['cost_basis']
+                    quantity = totals['quantity']
+                    account_name = symbol_map.get(symbol, symbol)
+
+                    # Calculate average price for description
+                    avg_price = totals['proceeds'] / quantity if quantity else 0
+                    description = f"Sale - {symbol} - {quantity:.3f} @ ~ ${avg_price:.2f}"
 
                     writer.writerow({
                         'Journal Date': str(settlement_date),
@@ -411,30 +503,11 @@ class Statement:
                         'Description': description,
                         'Contact Name': '',
                         'Debit': '',
-                        'Credit': f"{txn.amount:.2f}",
+                        'Credit': f"{cost_basis:.2f}",
                         'Project Name': '',
                         'Status': 'published',
                         'Exchange Rate': ''
                     })
-
-                # Debit cash account
-                writer.writerow({
-                    'Journal Date': str(settlement_date),
-                    'Reference Number': ref_number,
-                    'Journal Number Prefix': 'MMW-',
-                    'Journal Number Suffix': str(journal_number),
-                    'Notes': notes,
-                    'Journal Type': 'both',
-                    'Currency': 'USD',
-                    'Account': 'Cash - Fidelity Cash Management Account',
-                    'Description': f"Cash from {symbols}",
-                    'Contact Name': '',
-                    'Debit': f"{total_amount:.2f}",
-                    'Credit': '',
-                    'Project Name': '',
-                    'Status': 'published',
-                    'Exchange Rate': ''
-                })
 
                 journal_number += 1
 
@@ -475,6 +548,12 @@ class Statement:
             'KKR': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
             'L': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
             'TPG': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
+            'FDEM': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FDEV': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FELC': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FESM': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FMDE': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'ONEQ': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
         }
 
         # Calculate change_in_value by basket

@@ -144,25 +144,27 @@ class Income(object):
 
     def pprint(self) -> None:
 
+        print(f"\n{self.__repr__()}")
+        print("-" * 130)
+
         _header = (
-            f"Income(year = {self.year}, month = {self.month})\n"
-            f"  => payment count = {len(self.entries)}\n"
-            f"  => entry count = {len(self._income_by_date)}\n"
-            f"  => total income = {self.total_income:,.2f}"
+            f"Payment Count: {len(self.entries)}\n"
+            f"Entry Count: {len(self._income_by_date)}\n"
+            f"Total Income: {self.total_income:,.2f}\n"
+            f"Income File: {self._file_location.income_file}\n"
+            f"Dividend File: {self._file_location.dividend_file}"
         )
 
-        print()
-        print("-" * 95)
+        #
         print(_header)
-        print("-" * 95)
-        print()
+        print("-" * 130)
 
         entries = self.journal_entries
         """Return a formatted table of journal entries."""
 
         lines: list = [
-            f"{'Date':<12} {'Journal #':<12} {'Account':<40} {'Debit':>12} {'Credit':>12}",
-            "-" * 95
+            f"{'Date':<12} {'Journal #':<12} {'Description':<35} {'Account':<40} {'Debit':>12} {'Credit':>12}",
+            "-" * 130
         ]
         if not entries:
             lines.append("There are no journal entries.")
@@ -170,14 +172,15 @@ class Income(object):
             for e in entries:
                 debit_str = f"{e.debit:,.2f}" if e.debit else ""
                 credit_str = f"{e.credit:,.2f}" if e.credit else ""
+                desc_display = e.description[:33] + ".." if e.description and len(e.description) > 35 else (e.description or "")
                 account_display = e.account[:38] + ".." if len(e.account) > 40 else e.account
                 lines.append(
-                    f"{str(e.journal_date):<12} {e.journal_number:<12} {account_display:<40} {debit_str:>12} {credit_str:>12}"
+                    f"{str(e.journal_date):<12} {e.journal_number:<12} {desc_display:<35} {account_display:<40} {debit_str:>12} {credit_str:>12}"
                 )
-            lines.append("-" * 95)
+            lines.append("-" * 130)
             total_debit = sum(e.debit for e in entries if e.debit)
             total_credit = sum(e.credit for e in entries if e.credit)
-            lines.append(f"{'Total':<66} {total_debit:>12,.2f} {total_credit:>12,.2f}")
+            lines.append(f"{'Total':<102} {total_debit:>12,.2f} {total_credit:>12,.2f}")
 
         print("\n".join(lines))
         return None
@@ -196,16 +199,7 @@ class Income(object):
 
     def __repr__(self) -> str:
         """String representation of Income."""
-        return (
-            f"Income(\n"
-            f"  year = {self.year},\n"
-            f"  month = {self.month},\n"
-            f"  entries = {len(self.entries)},\n"
-            f"  total income = ${self.total_income:,.2f},\n"
-            f"  reinvestments = ${self.total_reinvestment:,.2f}\n"
-            f")"
-        )
-
+        return f"Income(FileLocation(year={self.year}, month={self.month}, root='{self._file_location.root}'))"
 
 if __name__ == '__main__':
     _income = Income(FileLocation(2025, 9, root='/Users/mick/GitHub/mjfii/mmm-accounting-agent-py'))

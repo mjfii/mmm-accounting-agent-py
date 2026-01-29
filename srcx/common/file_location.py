@@ -10,13 +10,14 @@ class FileLocation(object):
         self._year: int = year
         self._month: int = month
         if root is None:
-            self._base_path: Path = Path.cwd()
+            self._root: Path = Path.cwd()
         else:
-            self._base_path: Path = Path(root)
+            self._root: Path = Path(root)
 
         # Build file path and load data
-        self._summary_file: Path = self._base_path / 'scrapes' / 'summary' / str(year) / f"MMW-{year}-{month:02d}-SUM.csv"
-        self._income_file: Path = self._base_path / 'scrapes' / 'income' / str(year) / f"MMW-{year}-{month:02d}-INC.csv"
+        self._summary_file: Path = self._root / 'scrapes' / 'summary' / str(year) / f"MMW-{year}-{month:02d}-SUM.csv"
+        self._income_file: Path = self._root / 'scrapes' / 'income' / str(year) / f"MMW-{year}-{month:02d}-INC.csv"
+        self._dividend_file: Path = self._root / 'entries' / 'dividends' / str(year) / f"MMW-{year}-{month:02d}-DIV.csv"
 
     @property
     def year(self):
@@ -27,12 +28,20 @@ class FileLocation(object):
         return self._month
 
     @property
+    def root(self):
+        return self._root
+
+    @property
     def summary_file(self):
         return self._summary_file
 
     @property
     def income_file(self):
         return self._income_file
+
+    @property
+    def dividend_file(self):
+        return self._dividend_file
 
     def __repr__(self):
         return (

@@ -1,4 +1,4 @@
 from .summary import Summary
-from .income import Income, IncomeEntry
+from .income import Income
 
-__all__ = ['Summary', 'Income', 'IncomeEntry']
+__all__ = ['Summary', 'Income']

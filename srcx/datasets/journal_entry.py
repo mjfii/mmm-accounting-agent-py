@@ -37,17 +37,4 @@ class JournalEntry:
         return self.debit if self.debit else (self.credit if self.credit else 0.0)
 
     def __str__(self):
-        """Return a formatted string for this journal entry."""
-        debit_str = f"{self.debit:,.2f}" if self.debit else ""
-        credit_str = f"{self.credit:,.2f}" if self.credit else ""
-        return (
-            f"  journal number = {self.journal_number}"
-            f"  date = {self.journal_date}"
-            f"  reference = {self.reference_number}"
-            f"  account = {self.account}"
-            f"  description = {self.description}"
-            f"  debit = {debit_str}"
-            f"  credit = {credit_str}"
-            f"  status = {self.status}"
-            f")"
-        )
+        return f"{self.journal_number}"

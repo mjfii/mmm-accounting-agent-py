@@ -144,7 +144,7 @@ class Income(object):
 
     def pprint(self) -> None:
 
-        print(f"\n{self.__repr__()}")
+        print(f"{self.__repr__()}")
         print("-" * 130)
 
         _header = (
@@ -169,7 +169,11 @@ class Income(object):
         if not entries:
             lines.append("There are no journal entries.")
         else:
+            prev_journal_number = None
             for e in entries:
+                if prev_journal_number is not None and e.journal_number != prev_journal_number:
+                    lines.append("")
+                prev_journal_number = e.journal_number
                 debit_str = f"{e.debit:,.2f}" if e.debit else ""
                 credit_str = f"{e.credit:,.2f}" if e.credit else ""
                 desc_display = e.description[:33] + ".." if e.description and len(e.description) > 35 else (e.description or "")
@@ -204,5 +208,3 @@ class Income(object):
 if __name__ == '__main__':
     _income = Income(FileLocation(2025, 9, root='/Users/mick/GitHub/mjfii/mmm-accounting-agent-py'))
     _income.pprint()
-
-    # print(_income.pprint(_income.income))

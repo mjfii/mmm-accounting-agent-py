@@ -17,6 +17,7 @@ class FileLocation(object):
         # Build file path and load data
         self._summary_file: Path = self._root / 'scrapes' / 'summary' / str(year) / f"MMW-{year}-{month:02d}-SUM.csv"
         self._income_file: Path = self._root / 'scrapes' / 'income' / str(year) / f"MMW-{year}-{month:02d}-INC.csv"
+        self._activity_file: Path = self._root / 'scrapes' / 'activity' / str(year) / f"MMW-{year}-{month:02d}-ACT.csv"
         self._dividend_file: Path = self._root / 'entries' / 'dividends' / str(year) / f"MMW-{year}-{month:02d}-DIV.csv"
 
     @property
@@ -40,6 +41,10 @@ class FileLocation(object):
         return self._income_file
 
     @property
+    def activity_file(self):
+        return self._activity_file
+
+    @property
     def dividend_file(self):
         return self._dividend_file
 
@@ -49,7 +54,8 @@ class FileLocation(object):
             f"  year = {self.year},\n"
             f"  month = {self.month},\n"
             f"  summary file = {self.summary_file},\n"
-            f"  income file = {self.income_file}\n"
+            f"  income file = {self.income_file},\n"
+            f"  activity file = {self.activity_file}\n"
             f")"
         )
 

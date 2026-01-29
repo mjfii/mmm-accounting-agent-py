@@ -19,10 +19,15 @@ class Statement(object):
     def summary(self) -> Summary:
         return self._summary
 
+    @property
+    def income(self) -> Income:
+        return self._income
 
-
+    def pprint(self):
+        print()
+        self.summary.pprint()
+        self.income.pprint()
 
 if __name__ == '__main__':
     _statement = Statement(2025, 9)
-
-    print(repr(_statement.summary))
+    _statement.pprint()

@@ -1,3 +1,10 @@
+# return [
+#     'Journal Date', 'Reference Number', 'Journal Number Prefix',
+#     'Journal Number Suffix', 'Notes', 'Journal Type', 'Currency',
+#     'Account', 'Description', 'Contact Name', 'Debit', 'Credit',
+#     'Project Name', 'Status', 'Exchange Rate'
+# ]
+
 from dataclasses import dataclass
 from datetime import date
 from typing import Optional
@@ -5,12 +12,6 @@ from typing import Optional
 
 @dataclass
 class JournalEntry:
-    # return [
-    #     'Journal Date', 'Reference Number', 'Journal Number Prefix',
-    #     'Journal Number Suffix', 'Notes', 'Journal Type', 'Currency',
-    #     'Account', 'Description', 'Contact Name', 'Debit', 'Credit',
-    #     'Project Name', 'Status', 'Exchange Rate'
-    # ]
     journal_date: date
     reference_number: str
     journal_number_prefix: str

@@ -17,9 +17,9 @@ class Summary:
         Initialize Summary for a specific month and year.
         """
         self._file_location = file_location
-        self._load_from_csv(self._file_location.summary_file)
+        self._load(self._file_location.summary_file)
 
-    def _load_from_csv(self, csv_path: Path) -> None:
+    def _load(self, csv_path: Path) -> None:
         """Load summary data from CSV file."""
         if not csv_path.exists():
             raise FileNotFoundError(f"CSV file not found: {csv_path}")
@@ -52,11 +52,11 @@ class Summary:
 
     @property
     def year(self) -> int:
-        return self._year
+        return self._file_location.year
 
     @property
     def month(self) -> int:
-        return self._month
+        return self._file_location.month
 
     @property
     def period_start(self) -> date:
@@ -102,6 +102,28 @@ class Summary:
             return True
         else: return False
 
+    def pprint(self) -> None:
+
+        print(f"{self.__repr__()}")
+        print("-" * 130)
+
+        _header = (
+            f"Period Start: {self.period_start}\n"
+            f"Period End: {self.period_end}\n"
+            f"Beginning Value: ${self.beginning_value_period:,.2f}\n"
+            f"Additions: ${self.additions_period:,.2f}\n"
+            f"Subtractions: ${self.subtractions_period:,.2f}\n"
+            f"Change in Value: ${self.change_investment_value_period:,.2f}\n"
+            f"Dividends: ${self.income_period:,.2f}\n"
+            f"Unrealized Gains: ${self.unrealized_gains:,.2f}\n"
+            f"Ending Value: ${self.ending_value_period:,.2f}\n"
+            f"Validated: {self.validated}"
+        )
+
+        #
+        print(_header)
+        print("-" * 130)
+
     def __str__(self):
         return f"{self._file_location.summary_file}"
 
@@ -110,21 +132,8 @@ class Summary:
 
     def __repr__(self) -> str:
         """String representation of Summary."""
-        return (
-            f"Summary(\n"
-            f"  period start = {self.period_start},\n"
-            f"  period end = {self.period_end},\n"
-            f"  beginning value = ${self.beginning_value_period:,.2f},\n"
-            f"  additions = ${self.additions_period:,.2f},\n"
-            f"  subtractions = ${self.subtractions_period:,.2f},\n"
-            f"  change in value = ${self.change_investment_value_period:,.2f},\n"
-            f"  dividends = ${self.income_period:,.2f},\n"
-            f"  unrealized gains = ${self.unrealized_gains:,.2f},\n"
-            f"  ending value = ${self.ending_value_period:,.2f},\n"
-            f"  validated = {self.validated}\n"
-            f")"
-        )
+        return f"Summary(FileLocation(year={self.year}, month={self.month}, root='{self._file_location.root}'))"
 
 if __name__ == '__main__':
-    _summary = Summary(FileLocation(2025, 9))
-    print(repr(_summary))
+    _summary = Summary(FileLocation(2025, 9, root='/Users/mick/GitHub/mjfii/mmm-accounting-agent-py'))
+    _summary.pprint()

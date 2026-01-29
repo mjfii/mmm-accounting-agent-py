@@ -513,6 +513,26 @@ class Statement:
 
         return output_path
 
+    def _load_prior_holdings(self) -> dict:
+        """
+        Load prior month's holdings to get beginning values for sold securities.
+
+        Returns:
+            Dictionary mapping symbol to prior month's ending_value
+        """
+        prior_month = self.month - 1 if self.month > 1 else 12
+        prior_year = self.year if self.month > 1 else self.year - 1
+        prior_holdings_path = self.base_path / 'scrapes' / 'holdings' / str(prior_year) / f"MMW-{prior_year}-{prior_month:02d}-HLD.csv"
+
+        prior_values = {}
+        if prior_holdings_path.exists():
+            prior_holdings = Holdings(prior_holdings_path)
+            for h in prior_holdings:
+                if h.ending_value is not None:
+                    prior_values[h.symbol] = h.ending_value
+
+        return prior_values
+
     def write_unrealized_entries(self) -> Optional[Path]:
         """Write unrealized (mark-to-market) entries to UNR file. Journal suffix starts at 40001."""
         if self.holdings is None or self.summary is None:
@@ -548,12 +568,12 @@ class Statement:
             'KKR': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
             'L': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
             'TPG': ('10005', 'Holding Companies', 'Trading Securities - Holding Companies - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Holding Companies'),
-            'FDEM': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
-            'FDEV': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
-            'FELC': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
-            'FESM': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
-            'FMDE': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
-            'ONEQ': ('10004', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FDEM': ('10007', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FDEV': ('10007', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FELC': ('10007', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FESM': ('10007', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'FMDE': ('10007', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
+            'ONEQ': ('10007', 'Balanced ETFs', 'Trading Securities - Balanced ETFs - FMV Adjustment', 'Unrealized Gain - Equity Baskets - Balanced ETFs'),
         }
 
         # Calculate change_in_value by basket
@@ -581,6 +601,28 @@ class Statement:
                         basket_totals[basket_id] -= txn.amount
                     elif 'Sold' in txn.action:
                         basket_totals[basket_id] += txn.amount
+
+        # Include period gains/losses for completely sold securities
+        # These securities are not in current holdings but had value at beginning of period
+        current_symbols = {h.symbol for h in self.holdings}
+        prior_values = self._load_prior_holdings()
+
+        if self.activity is not None:
+            # Aggregate sale proceeds by symbol for completely sold securities
+            sold_proceeds = defaultdict(float)
+            for txn in self.activity:
+                if 'Sold' in txn.action and txn.symbol in basket_config and txn.symbol not in current_symbols:
+                    sold_proceeds[txn.symbol] += txn.amount
+
+            # Calculate period change for each sold security
+            for symbol, proceeds in sold_proceeds.items():
+                if symbol in prior_values:
+                    beginning_value = prior_values[symbol]
+                    period_change = proceeds - beginning_value
+                    basket_id, name, fmv_acct, unr_acct = basket_config[symbol]
+                    basket_totals[basket_id] += period_change
+                    if basket_id not in basket_info:
+                        basket_info[basket_id] = (name, fmv_acct, unr_acct)
 
         if not basket_totals:
             return None

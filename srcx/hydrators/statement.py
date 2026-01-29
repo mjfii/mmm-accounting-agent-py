@@ -1,7 +1,7 @@
 import srcx.common as cmn
 from srcx.hydrators import Summary
 from srcx.hydrators import Income
-
+from srcx.hydrators import Activity
 
 class Statement(object):
     """
@@ -14,6 +14,7 @@ class Statement(object):
         self._file_location = cmn.FileLocation(year=year, month=month, root='/Users/mick/GitHub/mjfii/mmm-accounting-agent-py')
         self._summary = Summary(self._file_location)
         self._income = Income(self._file_location)
+        self._activity = Activity(self._file_location)
 
     @property
     def summary(self) -> Summary:
@@ -23,10 +24,15 @@ class Statement(object):
     def income(self) -> Income:
         return self._income
 
+    @property
+    def activity(self) -> Activity:
+        return self._activity
+
     def pprint(self):
         print()
         self.summary.pprint()
         self.income.pprint()
+        self.activity.pprint()
 
 if __name__ == '__main__':
     _statement = Statement(2025, 9)

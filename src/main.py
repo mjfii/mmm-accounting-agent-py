@@ -52,8 +52,11 @@ def main():
         for i, holding in enumerate(statement.holdings):
             h_type = "MM" if holding.is_money_market else ""
             bv = "unavailable" if holding.beginning_value is None else f"${holding.beginning_value:,.2f}"
+            basis = "" if holding.cost_basis is None else f"${holding.cost_basis:>12,.3f}"
             print(f"    {holding.symbol:6} {h_type:3}| Qty: {holding.quantity:>10,.3f} | "
-                  f"End: ${holding.ending_value:>10,.2f} | Change: ${holding.change_in_value:>10,.2f}")
+                  f"End: ${holding.ending_value:>10,.2f} | Change: ${holding.change_in_value:>10,.2f} | "
+                  f"Basis: {basis}"
+                  )
         print()
 
     # Income summary

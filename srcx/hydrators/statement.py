@@ -1,0 +1,28 @@
+import srcx.common as cmn
+from srcx.hydrators import Summary
+from srcx.hydrators import Income
+
+
+class Statement(object):
+    """
+    Represents account summary data for a statement period.
+
+    Hydrates from a SUM CSV file which contains a single record with
+    period and year-to-date account values.
+    """
+    def __init__(self, year: int, month: int) -> None:
+        self._file_location = cmn.FileLocation(year=year, month=month, root='/Users/mick/GitHub/mjfii/mmm-accounting-agent-py')
+        self._summary = Summary(self._file_location)
+        self._income = Income(self._file_location)
+
+    @property
+    def summary(self) -> Summary:
+        return self._summary
+
+
+
+
+if __name__ == '__main__':
+    _statement = Statement(2025, 9)
+
+    print(repr(_statement.summary))

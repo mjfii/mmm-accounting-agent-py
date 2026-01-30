@@ -36,11 +36,11 @@ class Statement(object):
         _return_value.update(self.activity.write())
         return _return_value
 
-    def pprint(self):
+    def pprint(self, log: bool = False):
         print()
-        self.summary.pprint()
-        self.income.pprint()
-        self.activity.pprint()
+        self.summary.pprint(log=log)
+        self.income.pprint(log=log)
+        self.activity.pprint(log=log)
 
 if __name__ == '__main__':
     _statement = Statement(2025, 9)

@@ -7,6 +7,7 @@ from srcx.common.file_location import FileLocation
 from srcx.datasets.activity_transaction import ActivityTransaction
 from srcx.datasets.journal_entry import JournalEntry
 from srcx.common.journal_writer import write_journal_entries
+from srcx.common.log_writer import write_log
 from collections import defaultdict
 
 
@@ -355,10 +356,12 @@ class Activity(object):
             'sales': write_journal_entries(self.sale_journal_entries, self._file_location.sale_file)
         }
 
-    def pprint(self) -> None:
+    def pprint(self, log: bool = False) -> None:
 
-        print(f"{self.__repr__()}")
-        print("-" * 150)
+        output_lines: list[str] = []
+
+        output_lines.append(f"{self.__repr__()}")
+        output_lines.append("-" * 150)
 
         _header = (
             f"Total Transactions: {len(self.entries)}\n"
@@ -371,36 +374,40 @@ class Activity(object):
             f"Activity File: {self._file_location.activity_file}"
         )
 
-        print(_header)
-        print("-" * 150)
+        output_lines.append(_header)
+        output_lines.append("-" * 150)
 
         entries = self.journal_entries
 
-        lines: list = [
-            f"{'Date':<12} {'Journal #':<12} {'Description':<45} {'Account':<50} {'Debit':>12} {'Credit':>12}",
-            "-" * 150
-        ]
+        output_lines.append(f"{'Date':<12} {'Journal #':<12} {'Description':<45} {'Account':<50} {'Debit':>12} {'Credit':>12}")
+        output_lines.append("-" * 150)
+
         if not entries:
-            lines.append("There are no journal entries.")
+            output_lines.append("There are no journal entries.")
         else:
             prev_journal_number = None
             for e in entries:
                 if prev_journal_number is not None and e.journal_number != prev_journal_number:
-                    lines.append("")
+                    output_lines.append("")
                 prev_journal_number = e.journal_number
                 debit_str = f"{e.debit:,.2f}" if e.debit else ""
                 credit_str = f"{e.credit:,.2f}" if e.credit else ""
                 desc_display = e.description[:43] + ".." if e.description and len(e.description) > 45 else (e.description or "")
                 account_display = e.account[:48] + ".." if len(e.account) > 50 else e.account
-                lines.append(
+                output_lines.append(
                     f"{str(e.journal_date):<12} {e.journal_number:<12} {desc_display:<45} {account_display:<50} {debit_str:>12} {credit_str:>12}"
                 )
-            lines.append("-" * 150)
+            output_lines.append("-" * 150)
             total_debit = sum(e.debit for e in entries if e.debit)
             total_credit = sum(e.credit for e in entries if e.credit)
-            lines.append(f"{'Total':<122} {total_debit:>12,.2f} {total_credit:>12,.2f}")
+            output_lines.append(f"{'Total':<122} {total_debit:>12,.2f} {total_credit:>12,.2f}")
 
-        print("\n".join(lines))
+        output = "\n".join(output_lines)
+        print(output)
+
+        if log:
+            write_log(output, self._file_location.log_file)
+
         return None
 
     def __len__(self) -> int:

@@ -3,6 +3,7 @@ from csv import DictReader
 from datetime import date
 from pathlib import Path
 from srcx.common.file_location import FileLocation
+from srcx.common.log_writer import write_log
 
 
 class Summary:
@@ -102,10 +103,12 @@ class Summary:
             return True
         else: return False
 
-    def pprint(self) -> None:
+    def pprint(self, log: bool = False) -> None:
 
-        print(f"{self.__repr__()}")
-        print("-" * 130)
+        output_lines: list[str] = []
+
+        output_lines.append(f"{self.__repr__()}")
+        output_lines.append("-" * 130)
 
         _header = (
             f"Period Start: {self.period_start}\n"
@@ -120,9 +123,14 @@ class Summary:
             f"Validated: {self.validated}"
         )
 
-        #
-        print(_header)
-        print("-" * 130)
+        output_lines.append(_header)
+        output_lines.append("-" * 130)
+
+        output = "\n".join(output_lines)
+        print(output)
+
+        if log:
+            write_log(output, self._file_location.log_file)
 
     def __str__(self):
         return f"{self._file_location.summary_file}"

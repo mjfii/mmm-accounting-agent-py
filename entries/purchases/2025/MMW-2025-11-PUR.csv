@@ -1,0 +1,11 @@
+Journal Date,Reference Number,Journal Number Prefix,Journal Number Suffix,Notes,Journal Type,Currency,Account,Description,Contact Name,Debit,Credit,Project Name,Status,Exchange Rate
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Apollo Global Management Inc. (APO),Purchase - APO - 0.808 @ ~ $131.22,,106.03,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Apollo Global Management Inc. (APO),Purchase - APO - 1.000 @ ~ $131.18,,131.18,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Berkshire Hathaway Inc. Class B (BRKB),Purchase - BRKB - 0.503 @ ~ $510.93,,257.00,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Berkshire Hathaway Inc. Class B (BRKB),Purchase - BRKB - 1.000 @ ~ $510.91,,510.91,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Blackstone Inc. (BX),Purchase - BX - 0.929 @ ~ $145.80,,135.45,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Blackstone Inc. (BX),Purchase - BX - 2.000 @ ~ $145.83,,291.66,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,KKR & Co Inc. (KKR),Purchase - KKR - 0.240 @ ~ $122.10,,29.30,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Loews Corp (L),Purchase - L - 0.944 @ ~ $108.73,,102.65,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Loews Corp (L),Purchase - L - 4.000 @ ~ $108.77,,435.08,,,published,
+2025-11-28,PUR-2025-11-28-10005,MMW-,20001,"2025-11-28 Purchase - APO, BRKB, BX, KKR, L",both,USD,Cash - Fidelity Cash Management Account,"Cash for APO, BRKB, BX, KKR, L",,,1999.26,,published,

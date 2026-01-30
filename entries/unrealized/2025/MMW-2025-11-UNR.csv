@@ -1,0 +1,9 @@
+Journal Date,Reference Number,Journal Number Prefix,Journal Number Suffix,Notes,Journal Type,Currency,Account,Description,Contact Name,Debit,Credit,Project Name,Status,Exchange Rate
+2025-11-30,UNR-2025-11-30-10001,MMW-,40001,2025-11-30 Mark-to-Market - Water Investments,both,USD,Trading Securities - Water Basket - FMV Adjustment,FMV Adjustment - Water Investments,,59.64,,,published,
+2025-11-30,UNR-2025-11-30-10001,MMW-,40001,2025-11-30 Mark-to-Market - Water Investments,both,USD,Unrealized Gain - Equity Baskets - Water Investments,Unrealized Gain - Water Investments,,,59.64,,published,
+2025-11-30,UNR-2025-11-30-10003,MMW-,40002,2025-11-30 Mark-to-Market - Buy Write ETFs,both,USD,Trading Securities - Buy-Write ETFs - FMV Adjustment,FMV Adjustment - Buy Write ETFs,,55.26,,,published,
+2025-11-30,UNR-2025-11-30-10003,MMW-,40002,2025-11-30 Mark-to-Market - Buy Write ETFs,both,USD,Unrealized Gain - Equity Baskets - Buy Write ETFs,Unrealized Gain - Buy Write ETFs,,,55.26,,published,
+2025-11-30,UNR-2025-11-30-10005,MMW-,40003,2025-11-30 Mark-to-Market - Holding Companies,both,USD,Trading Securities - Holding Companies - FMV Adjustment,FMV Adjustment - Holding Companies,,574.08,,,published,
+2025-11-30,UNR-2025-11-30-10005,MMW-,40003,2025-11-30 Mark-to-Market - Holding Companies,both,USD,Unrealized Gain - Equity Baskets - Holding Companies,Unrealized Gain - Holding Companies,,,574.08,,published,
+2025-11-30,UNR-2025-11-30-10007,MMW-,40004,2025-11-30 Mark-to-Market - Balanced ETFs,both,USD,Trading Securities - Balanced ETFs - FMV Adjustment,FMV Adjustment - Balanced ETFs,,43.39,,,published,
+2025-11-30,UNR-2025-11-30-10007,MMW-,40004,2025-11-30 Mark-to-Market - Balanced ETFs,both,USD,Unrealized Gain - Equity Baskets - Balanced ETFs,Unrealized Gain - Balanced ETFs,,,43.39,,published,

@@ -73,8 +73,10 @@ class Holdings(object):
         self._entries: list[HoldingPosition] = []
         self._purchases_by_symbol: dict[str, float] = defaultdict(float)
         self._sales_by_symbol: dict[str, dict] = defaultdict(lambda: {'proceeds': 0.0, 'cost_basis': 0.0})
+        self._prior_values: dict[str, float] = {}
         self._load_holdings(self._file_location.holdings_file)
         self._load_activity(self._file_location.activity_file)
+        self._load_prior_holdings()
 
     def _load_holdings(self, csv_path: Path) -> None:
         """Load holdings data from CSV file."""
@@ -120,6 +122,25 @@ class Holdings(object):
                     cost_basis = float(row['cost_basis']) if row.get('cost_basis') else 0.0
                     self._sales_by_symbol[symbol]['proceeds'] += amount
                     self._sales_by_symbol[symbol]['cost_basis'] += cost_basis
+
+    def _load_prior_holdings(self) -> None:
+        """Load prior month's holdings to get ending values for liquidated securities."""
+        prior_month = self.month - 1 if self.month > 1 else 12
+        prior_year = self.year if self.month > 1 else self.year - 1
+        prior_holdings_path = self._file_location.root / 'scrapes' / 'holdings' / str(prior_year) / f"MMW-{prior_year}-{prior_month:02d}-HLD.csv"
+
+        if not prior_holdings_path.exists():
+            return
+
+        with open(prior_holdings_path, 'r', encoding='utf-8') as f:
+            reader: DictReader[str] = csv.DictReader(f)
+            for row in reader:
+                if not any(row.values()):
+                    continue
+                symbol = row['symbol']
+                ending_value = float(row['ending_value']) if row.get('ending_value') else None
+                if ending_value is not None:
+                    self._prior_values[symbol] = ending_value
 
     @property
     def year(self) -> int:
@@ -202,8 +223,40 @@ class Holdings(object):
 
         return liquidations
 
+    def _get_liquidation_period_change(self) -> dict[str, float]:
+        """
+        Get period change for securities that were completely liquidated.
+
+        This measures the change from prior period ending value to sale proceeds,
+        which represents the gain/loss during the current period only.
+        Change = proceeds - prior_ending_value
+        """
+        holdings_symbols = {e.symbol for e in self._entries}
+        period_changes: dict[str, float] = {}
+
+        for symbol, sale_data in self._sales_by_symbol.items():
+            if symbol not in holdings_symbols and symbol not in MONEY_MARKET_SYMBOLS:
+                if symbol in self._prior_values:
+                    prior_value = self._prior_values[symbol]
+                    period_change = sale_data['proceeds'] - prior_value
+                    period_changes[symbol] = period_change
+
+        return period_changes
+
+    def _get_liquidation_period_change_by_basket(self) -> dict[str, float]:
+        """Group liquidation period changes by basket."""
+        by_basket: dict[str, float] = defaultdict(float)
+
+        period_changes = self._get_liquidation_period_change()
+        for symbol, change in period_changes.items():
+            basket = SYMBOL_TO_BASKET.get(symbol)
+            if basket:
+                by_basket[basket] += change
+
+        return dict(by_basket)
+
     def _get_unrealized_by_basket(self) -> dict[str, float]:
-        """Group unrealized changes by basket, including liquidated securities."""
+        """Group unrealized changes by basket (holdings + liquidation period changes)."""
         by_basket: dict[str, float] = defaultdict(float)
 
         # Add changes from current holdings
@@ -213,7 +266,17 @@ class Holdings(object):
                 change = self._calculate_change(holding)
                 by_basket[basket] += change
 
-        # Add changes from liquidated securities
+        # Add period changes for liquidated securities (proceeds - prior_ending_value)
+        liquidation_period_changes = self._get_liquidation_period_change_by_basket()
+        for basket, change in liquidation_period_changes.items():
+            by_basket[basket] += change
+
+        return dict(by_basket)
+
+    def _get_liquidations_by_basket(self) -> dict[str, float]:
+        """Group liquidation changes by basket."""
+        by_basket: dict[str, float] = defaultdict(float)
+
         liquidations = self._get_liquidations()
         for symbol, change in liquidations.items():
             basket = SYMBOL_TO_BASKET.get(symbol)
@@ -222,18 +285,33 @@ class Holdings(object):
 
         return dict(by_basket)
 
+    def _get_total_by_basket(self) -> dict[str, float]:
+        """Get combined unrealized + liquidation changes by basket."""
+        by_basket: dict[str, float] = defaultdict(float)
+
+        unrealized = self._get_unrealized_by_basket()
+        for basket, change in unrealized.items():
+            by_basket[basket] += change
+
+        liquidations = self._get_liquidations_by_basket()
+        for basket, change in liquidations.items():
+            by_basket[basket] += change
+
+        return dict(by_basket)
+
     @property
     def total_unrealized(self) -> float:
-        """Total unrealized gain/loss for all baskets."""
-        by_basket = self._get_unrealized_by_basket()
+        """Total unrealized gain/loss for all baskets (including liquidations)."""
+        by_basket = self._get_total_by_basket()
         return sum(by_basket.values())
 
     @property
     def journal_entries(self) -> Union[list[JournalEntry], None]:
-        """Generate mark-to-market journal entries grouped by basket."""
-        by_basket = self._get_unrealized_by_basket()
+        """Generate mark-to-market and liquidation journal entries grouped by basket."""
+        unrealized_by_basket = self._get_unrealized_by_basket()
+        liquidations_by_basket = self._get_liquidations_by_basket()
 
-        if not by_basket:
+        if not unrealized_by_basket and not liquidations_by_basket:
             return None
 
         _return_value: list[JournalEntry] = []
@@ -244,8 +322,9 @@ class Holdings(object):
         last_day = calendar.monthrange(self.year, self.month)[1]
         journal_date = date(self.year, self.month, last_day)
 
-        for basket_id in sorted(by_basket.keys()):
-            change = by_basket[basket_id]
+        # Generate Mark-to-Market entries (holdings only)
+        for basket_id in sorted(unrealized_by_basket.keys()):
+            change = unrealized_by_basket[basket_id]
 
             if abs(change) < 0.01:
                 # Skip immaterial changes
@@ -261,8 +340,6 @@ class Holdings(object):
 
             if change >= 0:
                 # Unrealized gain
-                # Debit: FMV Adjustment (increase asset)
-                # Credit: Unrealized Gain (income)
                 _row_debit = JournalEntry(
                     journal_date=journal_date,
                     reference_number=ref_number,
@@ -301,8 +378,6 @@ class Holdings(object):
                 )
             else:
                 # Unrealized loss
-                # Debit: Unrealized Gain (expense - reduces income)
-                # Credit: FMV Adjustment (decrease asset)
                 abs_change = abs(change)
                 _row_debit = JournalEntry(
                     journal_date=journal_date,
@@ -345,6 +420,104 @@ class Holdings(object):
             _return_value.append(_row_credit)
             journal_number += 1
 
+        # Generate Liquidation entries (separate from mark-to-market)
+        for basket_id in sorted(liquidations_by_basket.keys()):
+            change = liquidations_by_basket[basket_id]
+
+            if abs(change) < 0.01:
+                # Skip immaterial changes
+                continue
+
+            basket_name, fmv_account, unrealized_account = BASKET_ACCOUNTS.get(
+                basket_id,
+                ('Unknown', 'Trading Securities - FMV Adjustment', 'Unrealized Gain - Equity Baskets')
+            )
+
+            ref_number = f"LIQ-{journal_date}-{basket_id}"
+            notes = f"{journal_date} Liquidation - {basket_name}"
+
+            if change >= 0:
+                # Liquidation gain
+                _row_debit = JournalEntry(
+                    journal_date=journal_date,
+                    reference_number=ref_number,
+                    journal_number_prefix='MMW-',
+                    journal_number_suffix=str(journal_number),
+                    notes=notes,
+                    journal_type='both',
+                    currency='USD',
+                    account=fmv_account,
+                    description=f"FMV Adjustment - {basket_name}",
+                    contact_name='',
+                    debit=round(change, 2),
+                    credit=None,
+                    project_name='',
+                    status='published',
+                    exchange_rate='',
+                    account_code=None
+                )
+                _row_credit = JournalEntry(
+                    journal_date=journal_date,
+                    reference_number=ref_number,
+                    journal_number_prefix='MMW-',
+                    journal_number_suffix=str(journal_number),
+                    notes=notes,
+                    journal_type='both',
+                    currency='USD',
+                    account=unrealized_account,
+                    description=f"Liquidation Gain - {basket_name}",
+                    contact_name='',
+                    debit=None,
+                    credit=round(change, 2),
+                    project_name='',
+                    status='published',
+                    exchange_rate='',
+                    account_code=None
+                )
+            else:
+                # Liquidation loss - debit FMV asset account, credit unrealized
+                abs_change = abs(change)
+                _row_debit = JournalEntry(
+                    journal_date=journal_date,
+                    reference_number=ref_number,
+                    journal_number_prefix='MMW-',
+                    journal_number_suffix=str(journal_number),
+                    notes=notes,
+                    journal_type='both',
+                    currency='USD',
+                    account=fmv_account,
+                    description=f"FMV Adjustment - {basket_name}",
+                    contact_name='',
+                    debit=round(abs_change, 2),
+                    credit=None,
+                    project_name='',
+                    status='published',
+                    exchange_rate='',
+                    account_code=None
+                )
+                _row_credit = JournalEntry(
+                    journal_date=journal_date,
+                    reference_number=ref_number,
+                    journal_number_prefix='MMW-',
+                    journal_number_suffix=str(journal_number),
+                    notes=notes,
+                    journal_type='both',
+                    currency='USD',
+                    account=unrealized_account,
+                    description=f"Liquidation Loss - {basket_name}",
+                    contact_name='',
+                    debit=None,
+                    credit=round(abs_change, 2),
+                    project_name='',
+                    status='published',
+                    exchange_rate='',
+                    account_code=None
+                )
+
+            _return_value.append(_row_debit)
+            _return_value.append(_row_credit)
+            journal_number += 1
+
         return _return_value if _return_value else None
 
     def write(self) -> dict[str, Optional[Path]]:
@@ -359,7 +532,9 @@ class Holdings(object):
         output_lines.append(f"{self.__repr__()}")
         output_lines.append("-" * 150)
 
-        by_basket = self._get_unrealized_by_basket()
+        unrealized_by_basket = self._get_unrealized_by_basket()
+        liquidations_by_basket = self._get_liquidations_by_basket()
+        total_by_basket = self._get_total_by_basket()
 
         _header = (
             f"Total Holdings: {len(self.entries)}\n"
@@ -374,14 +549,23 @@ class Holdings(object):
         output_lines.append("-" * 150)
 
         # Print breakdown by basket
-        output_lines.append("Unrealized by Basket:")
-        basket_total = 0.0
-        for basket_id in sorted(by_basket.keys()):
+        output_lines.append("Change by Basket:")
+        output_lines.append(f"  {'Basket':<35} {'Mark-to-Market':>15} {'Liquidation':>15} {'Total':>15}")
+        grand_total_mtm = 0.0
+        grand_total_liq = 0.0
+        grand_total = 0.0
+        all_basket_ids = sorted(set(unrealized_by_basket.keys()) | set(liquidations_by_basket.keys()))
+        for basket_id in all_basket_ids:
             basket_name = BASKET_ACCOUNTS.get(basket_id, ('Unknown',))[0]
-            change = by_basket[basket_id]
-            basket_total += change
-            output_lines.append(f"  {basket_id} ({basket_name}): ${change:,.2f}")
-        output_lines.append(f"  {'Total':<30}: ${basket_total:,.2f}")
+            mtm = unrealized_by_basket.get(basket_id, 0.0)
+            liq = liquidations_by_basket.get(basket_id, 0.0)
+            total = total_by_basket.get(basket_id, 0.0)
+            grand_total_mtm += mtm
+            grand_total_liq += liq
+            grand_total += total
+            liq_str = f"${liq:,.2f}" if liq else ""
+            output_lines.append(f"  {basket_id} ({basket_name}){'':<10} ${mtm:>12,.2f} {liq_str:>15} ${total:>12,.2f}")
+        output_lines.append(f"  {'Total':<35} ${grand_total_mtm:>12,.2f} ${grand_total_liq:>12,.2f} ${grand_total:>12,.2f}")
 
         output_lines.append("-" * 150)
 
@@ -411,6 +595,28 @@ class Holdings(object):
             output_lines.append(
                 f"{holding.symbol:<8} {basket:<8} {beg_str:>12} {holding.ending_value:>12,.2f} {pur_str:>12} {change:>12,.2f}"
             )
+
+        # Print liquidations (securities sold entirely during the period)
+        liquidations = self._get_liquidations()
+        period_changes = self._get_liquidation_period_change()
+        if liquidations:
+            output_lines.append("")
+            output_lines.append("Liquidations (sold entirely):")
+            output_lines.append(f"{'Symbol':<8} {'Basket':<8} {'Prior End':>12} {'Proceeds':>12} {'Period Chg':>12} {'Cost Basis':>12} {'Realized':>12}")
+            for symbol in sorted(liquidations.keys()):
+                basket = SYMBOL_TO_BASKET.get(symbol, '')
+                sale_data = self._sales_by_symbol[symbol]
+                cost_basis = sale_data['cost_basis']
+                proceeds = sale_data['proceeds']
+                realized_change = liquidations[symbol]
+                prior_end = self._prior_values.get(symbol, 0.0)
+                period_change = period_changes.get(symbol, 0.0)
+                total_beg += prior_end
+                total_end += proceeds
+                total_chg += period_change
+                output_lines.append(
+                    f"{symbol:<8} {basket:<8} {prior_end:>12,.2f} {proceeds:>12,.2f} {period_change:>12,.2f} {cost_basis:>12,.2f} {realized_change:>12,.2f}"
+                )
 
         output_lines.append("-" * 150)
         pur_total_str = f"{total_pur:,.2f}" if total_pur else ""

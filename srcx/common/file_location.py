@@ -21,6 +21,7 @@ class FileLocation(object):
         self._dividend_file: Path = self._root / 'entries' / 'dividends' / str(year) / f"MMW-{year}-{month:02d}-DIV.csv"
         self._purchase_file: Path = self._root / 'entries' / 'purchases' / str(year) / f"MMW-{year}-{month:02d}-PUR.csv"
         self._sale_file: Path = self._root / 'entries' / 'sales' / str(year) / f"MMW-{year}-{month:02d}-SAL.csv"
+        self._log_file: Path = self._root / 'logs' / str(year) / f"{year}-{month:02d}.log"
 
     @property
     def year(self):
@@ -57,6 +58,10 @@ class FileLocation(object):
     @property
     def sale_file(self):
         return self._sale_file
+
+    @property
+    def log_file(self):
+        return self._log_file
 
     def __repr__(self):
         return (

@@ -108,7 +108,7 @@ class Summary:
         output_lines: list[str] = []
 
         output_lines.append(f"{self.__repr__()}")
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         _header = (
             f"Period Start: {self.period_start}\n"
@@ -124,7 +124,7 @@ class Summary:
         )
 
         output_lines.append(_header)
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         output = "\n".join(output_lines)
         print(output)

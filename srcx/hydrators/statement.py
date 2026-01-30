@@ -1,10 +1,12 @@
-from typing import Optional
+from typing import Optional, Union
 from pathlib import Path
 import srcx.common as cmn
 from srcx.hydrators import Summary
 from srcx.hydrators import Income
 from srcx.hydrators import Activity
 from srcx.hydrators import Holdings
+from srcx.datasets.journal_entry import JournalEntry
+from srcx.common.journal_writer import write_journal_entries
 
 class Statement(object):
     """
@@ -36,11 +38,36 @@ class Statement(object):
     def holdings(self) -> Holdings:
         return self._holdings
 
+    @property
+    def journal_entries(self) -> Union[list[JournalEntry], None]:
+        """Aggregate all journal entries from income, activity, and holdings."""
+        all_entries: list[JournalEntry] = []
+
+        # Add dividend entries
+        if self.income.journal_entries:
+            all_entries.extend(self.income.journal_entries)
+
+        # Add purchase entries
+        if self.activity.purchase_journal_entries:
+            all_entries.extend(self.activity.purchase_journal_entries)
+
+        # Add sale entries
+        if self.activity.sale_journal_entries:
+            all_entries.extend(self.activity.sale_journal_entries)
+
+        # Add unrealized entries
+        if self.holdings.journal_entries:
+            all_entries.extend(self.holdings.journal_entries)
+
+        return all_entries if all_entries else None
+
     def write(self) -> dict[str, Optional[Path]]:
         _return_value: dict[str, Optional[Path]] = {}
         _return_value.update(self.income.write())
         _return_value.update(self.activity.write())
         _return_value.update(self.holdings.write())
+        # Write combined entries file
+        _return_value['entries'] = write_journal_entries(self.journal_entries, self._file_location.entries_file)
         return _return_value
 
     def pprint(self, log: bool = False):

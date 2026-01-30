@@ -155,7 +155,7 @@ class Income(object):
         output_lines: list[str] = []
 
         output_lines.append(f"{self.__repr__()}")
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         _header = (
             f"Payment Count: {len(self.entries)}\n"
@@ -166,12 +166,12 @@ class Income(object):
         )
 
         output_lines.append(_header)
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         entries = self.journal_entries
 
         output_lines.append(f"{'Date':<12} {'Journal #':<12} {'Description':<35} {'Account':<40} {'Debit':>12} {'Credit':>12}")
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         if not entries:
             output_lines.append("There are no journal entries.")
@@ -188,7 +188,7 @@ class Income(object):
                 output_lines.append(
                     f"{str(e.journal_date):<12} {e.journal_number:<12} {desc_display:<35} {account_display:<40} {debit_str:>12} {credit_str:>12}"
                 )
-            output_lines.append("-" * 130)
+            output_lines.append("-" * 150)
             total_debit = sum(e.debit for e in entries if e.debit)
             total_credit = sum(e.credit for e in entries if e.credit)
             output_lines.append(f"{'Total':<102} {total_debit:>12,.2f} {total_credit:>12,.2f}")

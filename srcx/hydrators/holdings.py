@@ -72,6 +72,7 @@ class Holdings(object):
         self._file_location = file_location
         self._entries: list[HoldingPosition] = []
         self._purchases_by_symbol: dict[str, float] = defaultdict(float)
+        self._sales_by_symbol: dict[str, dict] = defaultdict(lambda: {'proceeds': 0.0, 'cost_basis': 0.0})
         self._load_holdings(self._file_location.holdings_file)
         self._load_activity(self._file_location.activity_file)
 
@@ -99,9 +100,9 @@ class Holdings(object):
                 self._entries.append(entry)
 
     def _load_activity(self, csv_path: Path) -> None:
-        """Load activity data to get purchases during the period."""
+        """Load activity data to get purchases and sales during the period."""
         if not csv_path.exists():
-            # No activity file means no purchases to account for
+            # No activity file means no activity to account for
             return
 
         with open(csv_path, 'r', encoding='utf-8') as f:
@@ -110,10 +111,15 @@ class Holdings(object):
                 if not any(row.values()):
                     continue
 
+                symbol = row['symbol']
+                amount = float(row['amount'])
+
                 if row['action'] == 'You Bought':
-                    symbol = row['symbol']
-                    amount = float(row['amount'])
                     self._purchases_by_symbol[symbol] += amount
+                elif row['action'] == 'You Sold':
+                    cost_basis = float(row['cost_basis']) if row.get('cost_basis') else 0.0
+                    self._sales_by_symbol[symbol]['proceeds'] += amount
+                    self._sales_by_symbol[symbol]['cost_basis'] += cost_basis
 
     @property
     def year(self) -> int:
@@ -178,14 +184,40 @@ class Holdings(object):
 
         return raw_change
 
+    def _get_liquidations(self) -> dict[str, float]:
+        """
+        Get change in value for securities that were completely liquidated.
+
+        A liquidation is a sale where the security no longer appears in month-end holdings.
+        Change = proceeds - cost_basis
+        """
+        holdings_symbols = {e.symbol for e in self._entries}
+        liquidations: dict[str, float] = {}
+
+        for symbol, sale_data in self._sales_by_symbol.items():
+            if symbol not in holdings_symbols and symbol not in MONEY_MARKET_SYMBOLS:
+                # Security was completely liquidated
+                change = sale_data['proceeds'] - sale_data['cost_basis']
+                liquidations[symbol] = change
+
+        return liquidations
+
     def _get_unrealized_by_basket(self) -> dict[str, float]:
-        """Group unrealized changes by basket."""
+        """Group unrealized changes by basket, including liquidated securities."""
         by_basket: dict[str, float] = defaultdict(float)
 
+        # Add changes from current holdings
         for holding in self.holdings:
             basket = SYMBOL_TO_BASKET.get(holding.symbol)
             if basket:
                 change = self._calculate_change(holding)
+                by_basket[basket] += change
+
+        # Add changes from liquidated securities
+        liquidations = self._get_liquidations()
+        for symbol, change in liquidations.items():
+            basket = SYMBOL_TO_BASKET.get(symbol)
+            if basket:
                 by_basket[basket] += change
 
         return dict(by_basket)
@@ -325,7 +357,7 @@ class Holdings(object):
         output_lines: list[str] = []
 
         output_lines.append(f"{self.__repr__()}")
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         by_basket = self._get_unrealized_by_basket()
 
@@ -339,26 +371,39 @@ class Holdings(object):
         )
 
         output_lines.append(_header)
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         # Print breakdown by basket
         output_lines.append("Unrealized by Basket:")
+        basket_total = 0.0
         for basket_id in sorted(by_basket.keys()):
             basket_name = BASKET_ACCOUNTS.get(basket_id, ('Unknown',))[0]
             change = by_basket[basket_id]
+            basket_total += change
             output_lines.append(f"  {basket_id} ({basket_name}): ${change:,.2f}")
+        output_lines.append(f"  {'Total':<30}: ${basket_total:,.2f}")
 
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         # Print detail by holding
         output_lines.append(f"{'Symbol':<8} {'Basket':<8} {'Beg Value':>12} {'End Value':>12} {'Purchases':>12} {'Change':>12}")
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
+
+        total_beg = 0.0
+        total_end = 0.0
+        total_pur = 0.0
+        total_chg = 0.0
 
         for holding in sorted(self.holdings, key=lambda h: h.symbol):
             basket = SYMBOL_TO_BASKET.get(holding.symbol, '')
             beg_val = holding.beginning_value if holding.beginning_value is not None else holding.cost_basis
             purchases = self._purchases_by_symbol.get(holding.symbol, 0.0)
             change = self._calculate_change(holding)
+
+            total_beg += beg_val if beg_val else 0.0
+            total_end += holding.ending_value
+            total_pur += purchases
+            total_chg += change
 
             beg_str = f"{beg_val:,.2f}" if beg_val else ""
             pur_str = f"{purchases:,.2f}" if purchases else ""
@@ -367,12 +412,14 @@ class Holdings(object):
                 f"{holding.symbol:<8} {basket:<8} {beg_str:>12} {holding.ending_value:>12,.2f} {pur_str:>12} {change:>12,.2f}"
             )
 
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
+        pur_total_str = f"{total_pur:,.2f}" if total_pur else ""
+        output_lines.append(f"{'Total':<8} {'':<8} {total_beg:>12,.2f} {total_end:>12,.2f} {pur_total_str:>12} {total_chg:>12,.2f}")
 
         entries = self.journal_entries
 
         output_lines.append(f"\n{'Date':<12} {'Journal #':<12} {'Description':<40} {'Account':<45} {'Debit':>12} {'Credit':>12}")
-        output_lines.append("-" * 130)
+        output_lines.append("-" * 150)
 
         if not entries:
             output_lines.append("There are no journal entries.")
@@ -389,7 +436,7 @@ class Holdings(object):
                 output_lines.append(
                     f"{str(e.journal_date):<12} {e.journal_number:<12} {desc_display:<40} {account_display:<45} {debit_str:>12} {credit_str:>12}"
                 )
-            output_lines.append("-" * 130)
+            output_lines.append("-" * 150)
             total_debit = sum(e.debit for e in entries if e.debit)
             total_credit = sum(e.credit for e in entries if e.credit)
             output_lines.append(f"{'Total':<112} {total_debit:>12,.2f} {total_credit:>12,.2f}")

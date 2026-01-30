@@ -1,3 +1,5 @@
+from typing import Optional
+from pathlib import Path
 import srcx.common as cmn
 from srcx.hydrators import Summary
 from srcx.hydrators import Income
@@ -27,6 +29,12 @@ class Statement(object):
     @property
     def activity(self) -> Activity:
         return self._activity
+
+    def write(self) -> dict[str, Optional[Path]]:
+        _return_value: dict[str, Optional[Path]] = {}
+        _return_value.update(self.income.write())
+        _return_value.update(self.activity.write())
+        return _return_value
 
     def pprint(self):
         print()

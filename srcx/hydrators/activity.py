@@ -6,6 +6,7 @@ from typing import Iterator, Optional, Union
 from srcx.common.file_location import FileLocation
 from srcx.datasets.activity_transaction import ActivityTransaction
 from srcx.datasets.journal_entry import JournalEntry
+from srcx.common.journal_writer import write_journal_entries
 from collections import defaultdict
 
 
@@ -346,6 +347,13 @@ class Activity(object):
         if self.sale_journal_entries:
             entries.extend(self.sale_journal_entries)
         return entries if entries else None
+
+    def write(self) -> dict[str, Optional[Path]]:
+        """Write purchase and sale journal entries to CSV files."""
+        return {
+            'purchases': write_journal_entries(self.purchase_journal_entries, self._file_location.purchase_file),
+            'sales': write_journal_entries(self.sale_journal_entries, self._file_location.sale_file)
+        }
 
     def pprint(self) -> None:
 

@@ -6,6 +6,7 @@ from typing import Iterator, Optional, Union
 from srcx.common.file_location import FileLocation
 from srcx.datasets.income_transaction import IncomeTransaction
 from srcx.datasets.journal_entry import JournalEntry
+from srcx.common.journal_writer import write_journal_entries
 from collections import defaultdict
 
 
@@ -141,6 +142,12 @@ class Income(object):
             journal_number += 1
 
         return _return_value
+
+    def write(self) -> dict[str, Optional[Path]]:
+        """Write dividend journal entries to CSV file."""
+        return {
+            "dividends": write_journal_entries(self.journal_entries, self._file_location.dividend_file)
+        }
 
     def pprint(self) -> None:
 

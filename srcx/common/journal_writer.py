@@ -44,8 +44,8 @@ def write_journal_entries(entries: list[JournalEntry], file_path: Path) -> Optio
                 'Account': entry.account,
                 'Description': entry.description or '',
                 'Contact Name': entry.contact_name or '',
-                'Debit': entry.debit if entry.debit else '',
-                'Credit': entry.credit if entry.credit else '',
+                'Debit': f"{round(entry.debit,2):.2f}" if entry.debit else '',  # txn.amount:,
+                'Credit': f"{round(entry.credit,2):.2f}" if entry.credit else '',
                 'Project Name': entry.project_name or '',
                 'Status': entry.status,
                 'Exchange Rate': entry.exchange_rate or ''

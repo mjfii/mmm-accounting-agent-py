@@ -37,6 +37,10 @@ class Statement(object):
         return _return_value
 
     def pprint(self, log: bool = False):
+        if log:
+            log_file = self._file_location.log_file
+            if log_file.exists():
+                log_file.unlink()
         print()
         self.summary.pprint(log=log)
         self.income.pprint(log=log)

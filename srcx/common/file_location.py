@@ -19,6 +19,8 @@ class FileLocation(object):
         self._income_file: Path = self._root / 'scrapes' / 'income' / str(year) / f"MMW-{year}-{month:02d}-INC.csv"
         self._activity_file: Path = self._root / 'scrapes' / 'activity' / str(year) / f"MMW-{year}-{month:02d}-ACT.csv"
         self._dividend_file: Path = self._root / 'entries' / 'dividends' / str(year) / f"MMW-{year}-{month:02d}-DIV.csv"
+        self._purchase_file: Path = self._root / 'entries' / 'purchases' / str(year) / f"MMW-{year}-{month:02d}-PUR.csv"
+        self._sale_file: Path = self._root / 'entries' / 'sales' / str(year) / f"MMW-{year}-{month:02d}-SAL.csv"
 
     @property
     def year(self):
@@ -47,6 +49,14 @@ class FileLocation(object):
     @property
     def dividend_file(self):
         return self._dividend_file
+
+    @property
+    def purchase_file(self):
+        return self._purchase_file
+
+    @property
+    def sale_file(self):
+        return self._sale_file
 
     def __repr__(self):
         return (

@@ -25,6 +25,7 @@ class FileLocation(object):
         self._purchase_file: Path = self._root / 'entries' / 'purchases' / str(year) / f"MMW-{year}-{month:02d}-PUR.csv"
         self._sale_file: Path = self._root / 'entries' / 'sales' / str(year) / f"MMW-{year}-{month:02d}-SAL.csv"
         self._unrealized_file: Path = self._root / 'entries' / 'unrealized' / str(year) / f"MMW-{year}-{month:02d}-UNR.csv"
+        self._entries_file: Path = self._root / 'entries' / f"MMW-{year}-{month:02d}-ENT.csv"
         # Log file
         self._log_file: Path = self._root / 'logs' / str(year) / f"{year}-{month:02d}.log"
 
@@ -71,6 +72,10 @@ class FileLocation(object):
     @property
     def unrealized_file(self):
         return self._unrealized_file
+
+    @property
+    def entries_file(self):
+        return self._entries_file
 
     @property
     def log_file(self):

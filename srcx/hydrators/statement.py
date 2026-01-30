@@ -4,6 +4,7 @@ import srcx.common as cmn
 from srcx.hydrators import Summary
 from srcx.hydrators import Income
 from srcx.hydrators import Activity
+from srcx.hydrators import Holdings
 
 class Statement(object):
     """
@@ -17,6 +18,7 @@ class Statement(object):
         self._summary = Summary(self._file_location)
         self._income = Income(self._file_location)
         self._activity = Activity(self._file_location)
+        self._holdings = Holdings(self._file_location)
 
     @property
     def summary(self) -> Summary:
@@ -30,10 +32,15 @@ class Statement(object):
     def activity(self) -> Activity:
         return self._activity
 
+    @property
+    def holdings(self) -> Holdings:
+        return self._holdings
+
     def write(self) -> dict[str, Optional[Path]]:
         _return_value: dict[str, Optional[Path]] = {}
         _return_value.update(self.income.write())
         _return_value.update(self.activity.write())
+        _return_value.update(self.holdings.write())
         return _return_value
 
     def pprint(self, log: bool = False):
@@ -45,6 +52,7 @@ class Statement(object):
         self.summary.pprint(log=log)
         self.income.pprint(log=log)
         self.activity.pprint(log=log)
+        self.holdings.pprint(log=log)
 
 if __name__ == '__main__':
     _statement = Statement(2025, 9)

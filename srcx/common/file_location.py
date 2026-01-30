@@ -15,12 +15,17 @@ class FileLocation(object):
             self._root: Path = Path(root)
 
         # Build file path and load data
+        # Input scrape files
         self._summary_file: Path = self._root / 'scrapes' / 'summary' / str(year) / f"MMW-{year}-{month:02d}-SUM.csv"
         self._income_file: Path = self._root / 'scrapes' / 'income' / str(year) / f"MMW-{year}-{month:02d}-INC.csv"
         self._activity_file: Path = self._root / 'scrapes' / 'activity' / str(year) / f"MMW-{year}-{month:02d}-ACT.csv"
+        self._holdings_file: Path = self._root / 'scrapes' / 'holdings' / str(year) / f"MMW-{year}-{month:02d}-HLD.csv"
+        # Output journal entry files
         self._dividend_file: Path = self._root / 'entries' / 'dividends' / str(year) / f"MMW-{year}-{month:02d}-DIV.csv"
         self._purchase_file: Path = self._root / 'entries' / 'purchases' / str(year) / f"MMW-{year}-{month:02d}-PUR.csv"
         self._sale_file: Path = self._root / 'entries' / 'sales' / str(year) / f"MMW-{year}-{month:02d}-SAL.csv"
+        self._unrealized_file: Path = self._root / 'entries' / 'unrealized' / str(year) / f"MMW-{year}-{month:02d}-UNR.csv"
+        # Log file
         self._log_file: Path = self._root / 'logs' / str(year) / f"{year}-{month:02d}.log"
 
     @property
@@ -48,6 +53,10 @@ class FileLocation(object):
         return self._activity_file
 
     @property
+    def holdings_file(self):
+        return self._holdings_file
+
+    @property
     def dividend_file(self):
         return self._dividend_file
 
@@ -60,6 +69,10 @@ class FileLocation(object):
         return self._sale_file
 
     @property
+    def unrealized_file(self):
+        return self._unrealized_file
+
+    @property
     def log_file(self):
         return self._log_file
 
@@ -70,7 +83,8 @@ class FileLocation(object):
             f"  month = {self.month},\n"
             f"  summary file = {self.summary_file},\n"
             f"  income file = {self.income_file},\n"
-            f"  activity file = {self.activity_file}\n"
+            f"  activity file = {self.activity_file},\n"
+            f"  holdings file = {self.holdings_file}\n"
             f")"
         )
 
